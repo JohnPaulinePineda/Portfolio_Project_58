@@ -6,6 +6,7 @@ from pydantic import BaseModel
 import os
 import joblib
 import numpy as np
+import pandas as pd 
 
 ##################################
 # Defining file paths
@@ -67,8 +68,8 @@ def root():
 @app.post("/predict-individual-logit-probability-class")
 def predict_individual_logit_probability_class(input_data: TestSample):
     try:
-        # Converting the data input to a numpy array
-        X_test_sample = np.array([input_data.features_individual])
+        # Converting the data input to a DataFrame with proper feature names
+        X_test_sample = pd.DataFrame([input_data.features_individual], columns=final_classification_model.feature_names_in_)
 
         # Obtaining the estimated logit and probability values for an individual test case
         logit, probability, risk_class = compute_individual_logit_probability_class(X_test_sample)
@@ -92,8 +93,8 @@ def predict_individual_logit_probability_class(input_data: TestSample):
 @app.post("/predict-list-logit-probability-class")
 def predict_list_logit_probability_class(input_data: TestBatch):
     try:
-        # Converting the data input to a numpy array
-        X_train_list = np.array(input_data.features_list)
+        # Converting the data input to a DataFrame with proper feature names
+        X_train_list = pd.DataFrame(input_data.features_list, columns=final_classification_model.feature_names_in_)
 
         # Obtaining the estimated logit and probability values for a batch of cases
         logit, probability, logit_sorted, probability_sorted = compute_list_logit_probability_class(X_train_list)

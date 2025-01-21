@@ -13,6 +13,8 @@ import pandas as pd
 import matplotlib.pyplot as plt
 import io
 import base64
+import matplotlib
+matplotlib.use('Agg')
 
 ##################################
 # Defining file paths
@@ -229,12 +231,21 @@ def plot_kaplan_meier(request: KaplanMeierRequest):
             kmf.fit(df['TIME'][mask_new_case], event_observed=df['DEATH_EVENT'][mask_new_case], label=f'{cat_var}={new_case_value} (Test Case)')
             kmf.plot_survival_function(ax=ax, ci_show=False, color='black', linestyle=':', linewidth=3.0)
 
+        ax.set_title(f'DEATH_EVENT Survival Probabilities by {cat_var} Categories')
+        ax.set_ylim(-0.05, 1.05)
+        ax.set_xlabel('TIME')
+        ax.set_ylabel('DEATH_EVENT Survival Probability')
+        ax.legend(loc='lower left')
+
         # Saving the plot to a buffer
         buf = io.BytesIO()
         plt.savefig(buf, format="png")
         buf.seek(0)
         base64_image = base64.b64encode(buf.read()).decode('utf-8')
         buf.close()
+
+        # Closing the plot to release resources
+        plt.close(fig)
 
         # Returning the endpoint response
         return {"plot": base64_image}
