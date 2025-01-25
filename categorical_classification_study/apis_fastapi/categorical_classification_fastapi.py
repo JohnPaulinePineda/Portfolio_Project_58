@@ -1,5 +1,5 @@
 ##################################
-# Loading Python Libraries
+# Loading Python libraries
 ##################################
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
