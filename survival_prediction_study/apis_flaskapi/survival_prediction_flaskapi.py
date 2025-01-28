@@ -1,9 +1,7 @@
 ##################################
 # Loading Python libraries
 ##################################
-from fastapi import FastAPI, HTTPException
-from pydantic import BaseModel
-from typing import List, Optional
+from flask import Flask, request, jsonify
 import os
 import joblib
 import numpy as np
@@ -47,59 +45,17 @@ except Exception as e:
     raise RuntimeError(f"Error loading model: {str(e)}")
 
 ##################################
-# Defining the input schema for the function that
-# generates the heart failure survival profile,
-# estimates the heart failure survival probabilities,
-# and predicts the risk category
-# of an individual test case
+# Initializing the Flask app
 ##################################
-class TestSample(BaseModel):
-    features_individual: List[float]
-
-##################################
-# Defining the input schema for the function that
-# generates the heart failure survival profile and
-# estimates the heart failure survival probabilities
-# of a list of train cases
-##################################
-class TrainList(BaseModel):
-    features_list: List[List[float]]
-
-##################################
-# Defining the input schema for the function that
-# creates dichotomous bins for the numeric features
-# of a list of train cases
-##################################
-class BinningRequest(BaseModel):
-    X_original_list: List[dict]
-    numeric_feature: str
-
-##################################
-# Defining the input schema for the function that
-# plots the estimated survival profiles
-# using Kaplan-Meier Plots
-##################################
-class KaplanMeierRequest(BaseModel):
-    df: List[dict]
-    cat_var: str
-    new_case_value: Optional[str] = None
-
-##################################
-# Formulating the API endpoints
-##################################
-
-##################################
-# Initializing the FastAPI app
-##################################
-app = FastAPI()
+app = Flask(__name__)
 
 ##################################
 # Defining a GET endpoint for
-# for validating API service connection
+# validating API service connection
 ##################################
-@app.get("/")
+@app.route("/", methods=["GET"])
 def root():
-    return {"message": "Welcome to the Survival Prediction API!"}
+    return jsonify({"message": "Welcome to the Survival Prediction API!"})
 
 ##################################
 # Defining a POST endpoint for
@@ -108,14 +64,19 @@ def root():
 # and predicting the risk category
 # of an individual test case
 ##################################
-@app.post("/compute-individual-coxph-survival-probability-class/")
-def compute_individual_coxph_survival_probability_class(sample: TestSample):
+@app.route("/compute-individual-coxph-survival-probability-class/", methods=["POST"])
+def compute_individual_coxph_survival_probability_class():
     try:
+        # Getting JSON data from the request
+        data = request.json
+        if "features_individual" not in data:
+            return jsonify({"error": "Missing 'features_individual' in request"}), 400
+
         # Defining the column names
         column_names = ["AGE", "ANAEMIA", "EJECTION_FRACTION", "HIGH_BLOOD_PRESSURE", "SERUM_CREATININE", "SERUM_SODIUM"]
 
         # Converting the data input to a pandas DataFrame with appropriate column names
-        X_test_sample = pd.DataFrame([sample.features_individual], columns=column_names)
+        X_test_sample = pd.DataFrame([data["features_individual"]], columns=column_names)
 
         # Obtaining the survival function for an individual test case
         survival_function = final_survival_prediction_model.predict_survival_function(X_test_sample)
@@ -137,14 +98,14 @@ def compute_individual_coxph_survival_probability_class(sample: TestSample):
         survival_probabilities = survival_probability * 100
 
         # Returning the endpoint response
-        return {
+        return jsonify({
             "survival_function": survival_function[0].y.tolist(),
             "survival_time": survival_time.tolist(),
             "survival_probabilities": survival_probabilities.tolist(),
             "risk_category": risk_category,
-        }
+        })
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
 
 ##################################
 # Defining a POST endpoint for
@@ -152,14 +113,19 @@ def compute_individual_coxph_survival_probability_class(sample: TestSample):
 # estimating the heart failure survival probabilities
 # of a list of train cases
 ##################################
-@app.post("/compute-list-coxph-survival-profile/")
-def compute_list_coxph_survival_profile(train_list: TrainList):
+@app.route("/compute-list-coxph-survival-profile/", methods=["POST"])
+def compute_list_coxph_survival_profile():
     try:
+        # Getting JSON data from the request
+        data = request.json
+        if "features_list" not in data:
+            return jsonify({"error": "Missing 'features_list' in request"}), 400
+
         # Defining the column names
         column_names = ["AGE", "ANAEMIA", "EJECTION_FRACTION", "HIGH_BLOOD_PRESSURE", "SERUM_CREATININE", "SERUM_SODIUM"]
 
         # Converting the data input to a pandas DataFrame with appropriate column names
-        X_train_list = pd.DataFrame(train_list.features_list, columns=column_names)
+        X_train_list = pd.DataFrame(data["features_list"], columns=column_names)
 
         # Obtaining the survival function for a batch of cases
         survival_function = final_survival_prediction_model.predict_survival_function(X_train_list)
@@ -168,46 +134,56 @@ def compute_list_coxph_survival_profile(train_list: TrainList):
         survival_profiles = [sf.y.tolist() for sf in survival_function]
 
         # Returning the endpoint response
-        return {"survival_profiles": survival_profiles}
+        return jsonify({"survival_profiles": survival_profiles})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
 
 ##################################
 # Defining a POST endpoint for
 # creating dichotomous bins for the numeric features
 # of a list of train cases
 ##################################
-@app.post("/bin-numeric-model-feature/")
-def bin_numeric_model_feature(request: BinningRequest):
+@app.route("/bin-numeric-model-feature/", methods=["POST"])
+def bin_numeric_model_feature():
     try:
+        # Getting JSON data from the request
+        data = request.json
+        if "X_original_list" not in data or "numeric_feature" not in data:
+            return jsonify({"error": "Missing 'X_original_list' or 'numeric_feature' in request"}), 400
+
         # Converting the data input to a pandas DataFrame with appropriate column names
-        X_original_list = pd.DataFrame(request.X_original_list)
+        X_original_list = pd.DataFrame(data["X_original_list"])
 
         # Computing the median
-        median = numeric_feature_median.loc[request.numeric_feature]
+        median = numeric_feature_median.loc[data["numeric_feature"]]
 
         # Dichotomizing the data input to categories based on the median
-        X_original_list[request.numeric_feature] = np.where(
-            X_original_list[request.numeric_feature] <= median, "Low", "High"
+        X_original_list[data["numeric_feature"]] = np.where(
+            X_original_list[data["numeric_feature"]] <= median, "Low", "High"
         )
 
         # Returning the endpoint response
-        return X_original_list.to_dict(orient="records")
+        return jsonify(X_original_list.to_dict(orient="records"))
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
 
 ##################################
 # Defining a POST endpoint for
 # plotting the estimated survival profiles
 # using Kaplan-Meier Plots
 ##################################
-@app.post("/plot-kaplan-meier/")
-def plot_kaplan_meier(request: KaplanMeierRequest):
+@app.route("/plot-kaplan-meier/", methods=["POST"])
+def plot_kaplan_meier():
     try:
+        # Getting JSON data from the request
+        data = request.json
+        if "df" not in data or "cat_var" not in data:
+            return jsonify({"error": "Missing 'df' or 'cat_var' in request"}), 400
+
         # Obtaining plot components
-        df = pd.DataFrame(request.df)
-        cat_var = request.cat_var
-        new_case_value = request.new_case_value
+        df = pd.DataFrame(data["df"])
+        cat_var = data["cat_var"]
+        new_case_value = data.get("new_case_value")
 
         # Initializing a Kaplan-Meier plot object
         kmf = KaplanMeierFitter()
@@ -248,13 +224,14 @@ def plot_kaplan_meier(request: KaplanMeierRequest):
         plt.close(fig)
 
         # Returning the endpoint response
-        return {"plot": base64_image}
+        return jsonify({"plot": base64_image})
     except Exception as e:
-        raise HTTPException(status_code=500, detail=str(e))
+        return jsonify({"error": str(e)}), 500
 
 ##################################
-# Running the FastAPI app
+# Running the Flask app
 ##################################
 if __name__ == "__main__":
-    import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8001)   
+    app.run(host="0.0.0.0", port=5001)
+
+    
