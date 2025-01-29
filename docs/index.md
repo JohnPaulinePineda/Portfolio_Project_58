@@ -2,20 +2,23 @@
 # Model Deployment : Exploring Modular Application Programming Interface Frameworks For Serving Model Predictions
 
 ***
-### [**John Pauline Pineda**](https://github.com/JohnPaulinePineda) <br> <br> *February 1, 2025*
+### [**John Pauline Pineda**](https://github.com/JohnPaulinePineda) <br> <br> *February 8, 2025*
 ***
 
 * [**1. Table of Contents**](#TOC)
     * [1.1 Project Background](#1.1)
         * [1.1.1 Categorical Classfication](#1.1.1)
             * [1.1.1.1 Data Background](#1.1.1.1)
-            * [1.1.1.2 Model Background](#1.1.2.1)
+            * [1.1.1.2 Model Background](#1.1.1.2)
+            * [1.1.1.3 Deployment Background](#1.1.1.3)
         * [1.1.2 Survival Prediction](#1.1.2)
             * [1.1.2.1 Data Background](#1.1.2.1)
             * [1.1.2.2 Model Background](#1.1.2.2)
+            * [1.1.2.3 Deployment Background](#1.1.2.3)
         * [1.1.3 Survival Prediction](#1.1.3)
-            * [1.1.3.1 Data Background](#1.1.2.1)
+            * [1.1.3.1 Data Background](#1.1.3.1)
             * [1.1.3.2 Model Background](#1.1.3.2)
+            * [1.1.3.3 Deployment Background](#1.1.3.3)
     * [1.2 Application Programming Interface (API) Development Using the FastAPI Framework](#1.2)
         * [1.2.1 Categorical Classfication](#1.2.1)
             * [1.2.1.1 API Building](#1.2.1.1)
@@ -50,19 +53,43 @@
 
 #### 1.1.1.1 Data Background <a class="anchor" id="1.1.1.1"></a>
 
+![cc_data_background.png](c5ce3cb2-c166-43f1-8fb3-f50ef8f190f2.png)
+
 #### 1.1.1.2 Model Background <a class="anchor" id="1.1.1.2"></a>
+
+![cc_model_background.png](5d81838d-3fa5-41d0-9511-2456a0137a05.png)
+
+#### 1.1.1.3 Deployment Background <a class="anchor" id="1.1.1.3"></a>
+
+![cc_deployment_background.png](d0d3486e-750b-46a1-aaf8-c6680d97af35.png)
 
 ### 1.1.2 Survival Prediction <a class="anchor" id="1.1.2"></a>
 
 #### 1.1.2.1 Data Background <a class="anchor" id="1.1.2.1"></a>
 
+![sp_data_background.png](e84513d4-bd1f-4a06-aaf3-cc0ebeae8a8d.png)
+
 #### 1.1.2.2 Model Background <a class="anchor" id="1.1.2.2"></a>
+
+![sp_model_background.png](bbf692c9-307f-4630-bfd5-8996a2590deb.png)
+
+#### 1.1.2.3 Deployment Background <a class="anchor" id="1.1.2.3"></a>
+
+![sp_deployment_background.png](e4759860-217e-4c31-8a4a-797844305b59.png)
 
 ### 1.1.3 Image Classfication <a class="anchor" id="1.1.3"></a>
 
 #### 1.1.3.1 Data Background <a class="anchor" id="1.1.3.1"></a>
 
+![ic_data_background.png](174e5369-84c0-413f-92c6-fdf18cfdaa5e.png)
+
 #### 1.1.3.2 Model Background <a class="anchor" id="1.1.3.2"></a>
+
+![ic_model_background.png](37b6c7a7-9454-4849-951c-8e42c91e9555.png)
+
+#### 1.1.3.3 Deployment Background <a class="anchor" id="1.1.3.3"></a>
+
+![ic_deployment_background.png](d56f11c3-97b4-4211-980d-b599beb0a7c7.png)
 
 ## 1.2. Application Programming Interface (API) Development Using the FastAPI Framework <a class="anchor" id="1.2"></a>
 
@@ -246,7 +273,7 @@ from IPython.display import Image, display
 ```python
 ##################################
 # Defining the base URL of the API
-# for the categorical classification model
+# for the survival prediction model
 ##################################
 SP_FASTAPI_BASE_URL = "http://127.0.0.1:8001"
 
@@ -784,7 +811,7 @@ else:
 
 
     
-![png](output_47_0.png)
+![png](output_59_0.png)
     
 
 
@@ -812,6 +839,101 @@ else:
 #### 1.2.3.1 API Building <a class="anchor" id="1.2.3.1"></a>
 
 #### 1.2.3.2 API Testing <a class="anchor" id="1.2.3.2"></a>
+
+
+```python
+##################################
+# Loading Python Libraries
+##################################
+import requests
+import json
+import base64
+from IPython.display import Image, display
+from PIL import Image
+import matplotlib.pyplot as plt
+import io
+from tensorflow.keras.utils import load_img
+import os
+
+```
+
+
+```python
+##################################
+# Defining the base URL of the API
+# for the image classification model
+##################################
+IC_FASTAPI_BASE_URL = "http://127.0.0.1:8002"
+
+```
+
+
+```python
+##################################
+# Defining the file path for an individual test image
+##################################
+IMAGES_PATH = r"image_classification_study\images"
+image_path = (os.path.join("..",IMAGES_PATH, "test_image.jpg"))
+
+```
+
+
+```python
+##################################
+# Visualizing the individual test image
+##################################
+try:
+    image = Image.open(image_path)
+    print(f"Image File Path: {image_path}")
+    print(f"Image Format: {image.format}")
+    print(f"Image Size: {image.size}")
+    print(f"Image Mode: {image.mode}") 
+except Exception as e:
+    print(f"Error loading image: {e}")
+plt.imshow(image)
+plt.axis('off') 
+plt.title("Test Image")
+plt.show()
+```
+
+    Image File Path: ..\image_classification_study\images\test_image.jpg
+    Image Format: JPEG
+    Image Size: (209, 241)
+    Image Mode: RGB
+    
+
+
+    
+![png](output_67_1.png)
+    
+
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# predicting the image category and
+# estimating class probabilities
+# of an individual test image
+##################################
+with open(image_path, "rb") as file:
+        files = {"file": file}
+        
+        response = requests.post(f"{IC_FASTAPI_BASE_URL}/predict-image-category-class-probability/", files=files)
+        
+        if response.status_code == 200:
+            result = response.json()
+            print("Prediction Result:")
+            print(f"Predicted Class: {result['predicted_class']}")
+            print("Probabilities:")
+            for cls, prob in result["probabilities"].items():
+                print(f"{cls}: {prob:.2f}%")
+        else:
+            print(f"Error: {response.status_code} - {response.text}")
+```
+
+    Error: 500 - Internal Server Error
+    
 
 ## 1.3. Application Programming Interface (API) Development Using the Flask Framework <a class="anchor" id="1.3"></a>
 
@@ -977,7 +1099,7 @@ from IPython.display import Image, display
 ```python
 ##################################
 # Defining the base URL of the API
-# for the categorical classification model
+# for the survival prediction model
 ##################################
 SP_FLASKAPI_BASE_URL = "http://127.0.0.1:5001"
 
@@ -1515,7 +1637,7 @@ else:
 
 
     
-![png](output_83_0.png)
+![png](output_100_0.png)
     
 
 

@@ -36,7 +36,7 @@ except Exception as e:
 try:
     numeric_feature_median = joblib.load(os.path.join("..", PARAMETERS_PATH, "numeric_feature_median_list.pkl"))
 except Exception as e:
-    raise RuntimeError(f"Error loading model: {str(e)}")
+    raise RuntimeError(f"Error loading model feature median: {str(e)}")
 
 ##################################
 # Loading the threshold parameter
@@ -44,7 +44,7 @@ except Exception as e:
 try:
     final_survival_prediction_model_risk_group_threshold = joblib.load(os.path.join("..", PARAMETERS_PATH, "coxph_best_model_risk_group_threshold.pkl"))
 except Exception as e:
-    raise RuntimeError(f"Error loading model: {str(e)}")
+    raise RuntimeError(f"Error loading model risk group threshold: {str(e)}")
 
 ##################################
 # Defining the input schema for the function that
