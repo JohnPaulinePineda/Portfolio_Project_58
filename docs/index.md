@@ -265,7 +265,8 @@ import requests
 import json
 import pandas as pd
 import base64
-from IPython.display import Image, display
+from IPython.display import display
+from PIL import Image
 
 ```
 
@@ -803,7 +804,7 @@ if response.status_code == 200:
     img = base64.b64decode(plot_data)
     with open("kaplan_meier_plot.png", "wb") as f:
         f.write(img)
-        display(Image("kaplan_meier_plot.png"))
+        display(Image.open("kaplan_meier_plot.png"))
 else:
     print("Error:", response.status_code, response.text)
     
@@ -840,6 +841,12 @@ else:
 
 #### 1.2.3.2 API Testing <a class="anchor" id="1.2.3.2"></a>
 
+![ic_fastapi_activation.png](03e075dd-63b0-4b41-8479-2b03412459dd.png)
+
+![ic_fastapi_documentation.png](a062362a-84dd-4446-aa30-92dc5ba270e9.png)
+
+![ic_fastapi_endpoints.png](858dcb27-be28-4eb5-bafe-7cd111c7a19b.png)
+
 
 ```python
 ##################################
@@ -848,7 +855,7 @@ else:
 import requests
 import json
 import base64
-from IPython.display import Image, display
+from IPython.display import display
 from PIL import Image
 import matplotlib.pyplot as plt
 import io
@@ -898,15 +905,65 @@ plt.show()
 
     Image File Path: ..\image_classification_study\images\test_image.jpg
     Image Format: JPEG
-    Image Size: (209, 241)
+    Image Size: (215, 234)
     Image Mode: RGB
     
 
 
     
-![png](output_67_1.png)
+![png](output_70_1.png)
     
 
+
+
+```python
+##################################
+# Generating a GET endpoint request for
+# for validating API service connection
+##################################
+response = requests.get(f"{IC_FASTAPI_BASE_URL}/")
+if response.status_code == 200:
+    display("Response:", response.json())
+else:
+    print("Error:", response.status_code, response.text)
+    
+```
+
+
+    'Response:'
+
+
+
+    {'message': 'Welcome to the Image Classification API!'}
+
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# ensuring that the file upload mechanism is working
+# by returning the the file metadata
+##################################
+with open(image_path, "rb") as file:
+    files = {"file": ("image.jpg", file, "image/jpeg")}
+    response = requests.post(f"{IC_FASTAPI_BASE_URL}/test-file-upload/", files=files)
+
+    if response.status_code == 200:
+        result = response.json()
+        print("File Upload Test Result:")
+        print(f"Filename: {result['filename']}")
+        print(f"Content Type: {result['content_type']}")
+        print(f"Size: {result['size']} bytes")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        
+```
+
+    File Upload Test Result:
+    Filename: image.jpg
+    Content Type: image/jpeg
+    Size: 12103 bytes
+    
 
 
 ```python
@@ -917,23 +974,58 @@ plt.show()
 # of an individual test image
 ##################################
 with open(image_path, "rb") as file:
-        files = {"file": file}
-        
-        response = requests.post(f"{IC_FASTAPI_BASE_URL}/predict-image-category-class-probability/", files=files)
-        
-        if response.status_code == 200:
-            result = response.json()
-            print("Prediction Result:")
-            print(f"Predicted Class: {result['predicted_class']}")
-            print("Probabilities:")
-            for cls, prob in result["probabilities"].items():
-                print(f"{cls}: {prob:.2f}%")
-        else:
-            print(f"Error: {response.status_code} - {response.text}")
+    files = {"file": ("image.jpg", file, "image/jpeg")}
+    response = requests.post(f"{IC_FASTAPI_BASE_URL}/predict-image-category-class-probability/", files=files)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print("Prediction Result:")
+        print(f"Predicted Class: {result['predicted_class']}")
+        print("Probabilities:")
+        for cls, prob in result["probabilities"].items():
+            print(f"{cls}: {prob:.5f}%")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+            
 ```
 
-    Error: 500 - Internal Server Error
+    Prediction Result:
+    Predicted Class: Meningioma
+    Probabilities:
+    No Tumor: 12.94989%
+    Glioma: 0.02788%
+    Meningioma: 87.02222%
+    Pituitary: 0.00002%
     
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# formulating the gradient class activation map
+# from the output of the first to third convolutional layers and
+# and superimposing on the actual image
+##################################
+with open(image_path, "rb") as file:
+    files = {"file": ("image.jpg", file, "image/jpeg")}
+    response = requests.post(f"{IC_FASTAPI_BASE_URL}/visualize-image-gradcam/", files=files)
+    
+    if response.status_code == 200:
+        plot_data = response.json()["plot"]
+        # Decoding and displaying the plot
+        img = base64.b64decode(plot_data)
+        with open("image_gradcam_plot.png", "wb") as f:
+            f.write(img)
+            display(Image.open("image_gradcam_plot.png"))
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+```
+
+
+    
+![png](output_74_0.png)
+    
+
 
 ## 1.3. Application Programming Interface (API) Development Using the Flask Framework <a class="anchor" id="1.3"></a>
 
@@ -1637,7 +1729,7 @@ else:
 
 
     
-![png](output_100_0.png)
+![png](output_106_0.png)
     
 
 
