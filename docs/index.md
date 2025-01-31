@@ -7,7 +7,7 @@
 
 * [**1. Table of Contents**](#TOC)
     * [1.1 Project Background](#1.1)
-        * [1.1.1 Categorical Classfication](#1.1.1)
+        * [1.1.1 Categorical Classification](#1.1.1)
             * [1.1.1.1 Data Background](#1.1.1.1)
             * [1.1.1.2 Model Background](#1.1.1.2)
             * [1.1.1.3 Deployment Background](#1.1.1.3)
@@ -20,23 +20,23 @@
             * [1.1.3.2 Model Background](#1.1.3.2)
             * [1.1.3.3 Deployment Background](#1.1.3.3)
     * [1.2 Application Programming Interface (API) Development Using the FastAPI Framework](#1.2)
-        * [1.2.1 Categorical Classfication](#1.2.1)
+        * [1.2.1 Categorical Classification](#1.2.1)
             * [1.2.1.1 API Building](#1.2.1.1)
             * [1.2.1.2 API Testing](#1.2.1.2)
-        * [1.2.2 Categorical Classfication](#1.2.2)
+        * [1.2.2 Categorical Classification](#1.2.2)
             * [1.2.2.1 API Building](#1.2.2.1)
             * [1.2.2.2 API Testing](#1.2.2.2)
-        * [1.2.3 Categorical Classfication](#1.2.3)
+        * [1.2.3 Categorical Classification](#1.2.3)
             * [1.2.3.1 API Building](#1.2.3.1)
             * [1.2.3.2 API Testing](#1.2.3.2)
     * [1.3 Application Programming Interface (API) Development Using the Flask Framework](#1.3)
-        * [1.3.1 Categorical Classfication](#1.3.1)
+        * [1.3.1 Categorical Classification](#1.3.1)
             * [1.3.1.1 API Building](#1.3.1.1)
             * [1.3.1.2 API Testing](#1.3.1.2)
-        * [1.3.2 Categorical Classfication](#1.3.2)
+        * [1.3.2 Categorical Classification](#1.3.2)
             * [1.3.2.1 API Building](#1.3.2.1)
             * [1.3.2.2 API Testing](#1.3.2.2)
-        * [1.3.3 Categorical Classfication](#1.3.3)
+        * [1.3.3 Categorical Classification](#1.3.3)
             * [1.3.3.1 API Building](#1.3.3.1)
             * [1.3.3.2 API Testing](#1.3.3.2)
     * [1.4 Consolidated Findings](#1.1)
@@ -77,7 +77,7 @@
 
 ![sp_deployment_background.png](e4759860-217e-4c31-8a4a-797844305b59.png)
 
-### 1.1.3 Image Classfication <a class="anchor" id="1.1.3"></a>
+### 1.1.3 Image Classification <a class="anchor" id="1.1.3"></a>
 
 #### 1.1.3.1 Data Background <a class="anchor" id="1.1.3.1"></a>
 
@@ -97,7 +97,7 @@
 
 #### 1.2.1.1 API Building <a class="anchor" id="1.2.1.1"></a>
 
-![cc_fastapi_code.png](4b7df75c-cef6-4438-a3d2-240bcabc7c92.png)
+![cc_fastapi_code.png](0c035228-e098-4344-864f-a2b5502a927e.png)
 
 #### 1.2.1.2 API Testing <a class="anchor" id="1.2.1.2"></a>
 
@@ -246,7 +246,7 @@ else:
 
 #### 1.2.2.1 API Building <a class="anchor" id="1.2.2.1"></a>
 
-![sp_fastapi_code.png](c97106a8-9270-4c6b-8513-4259e137e5ad.png)
+![sp_fastapi_code.png](1f99067b-b0a5-4dca-9827-cf2686fc9108.png)
 
 #### 1.2.2.2 API Testing <a class="anchor" id="1.2.2.2"></a>
 
@@ -835,9 +835,11 @@ else:
     Error: 422 {"detail":[{"type":"missing","loc":["body","features_individual"],"msg":"Field required","input":{"features":[43,0,75,1,0.75]}}]}
     
 
-### 1.2.3 Image Classfication <a class="anchor" id="1.2.3"></a>
+### 1.2.3 Image Classification <a class="anchor" id="1.2.3"></a>
 
 #### 1.2.3.1 API Building <a class="anchor" id="1.2.3.1"></a>
+
+![ic_fastapi_code.png](64d15f91-4423-4c22-8e59-97fa8a3a5226.png)
 
 #### 1.2.3.2 API Testing <a class="anchor" id="1.2.3.2"></a>
 
@@ -861,6 +863,7 @@ import matplotlib.pyplot as plt
 import io
 from tensorflow.keras.utils import load_img
 import os
+import mimetypes
 
 ```
 
@@ -881,6 +884,16 @@ IC_FASTAPI_BASE_URL = "http://127.0.0.1:8002"
 ##################################
 IMAGES_PATH = r"image_classification_study\images"
 image_path = (os.path.join("..",IMAGES_PATH, "test_image.jpg"))
+
+```
+
+
+```python
+##################################
+# Automatically determining the filename and content type
+##################################
+image_path_filename = os.path.basename(image_path)
+image_path_content_type, _ = mimetypes.guess_type(image_path)
 
 ```
 
@@ -911,7 +924,7 @@ plt.show()
 
 
     
-![png](output_70_1.png)
+![png](output_72_1.png)
     
 
 
@@ -945,7 +958,7 @@ else:
 # by returning the the file metadata
 ##################################
 with open(image_path, "rb") as file:
-    files = {"file": ("image.jpg", file, "image/jpeg")}
+    files = {"file": (image_path_filename, file, image_path_content_type)}
     response = requests.post(f"{IC_FASTAPI_BASE_URL}/test-file-upload/", files=files)
 
     if response.status_code == 200:
@@ -960,7 +973,7 @@ with open(image_path, "rb") as file:
 ```
 
     File Upload Test Result:
-    Filename: image.jpg
+    Filename: test_image.jpg
     Content Type: image/jpeg
     Size: 12103 bytes
     
@@ -1019,13 +1032,59 @@ with open(image_path, "rb") as file:
             display(Image.open("image_gradcam_plot.png"))
     else:
         print(f"Error: {response.status_code} - {response.text}")
+        
 ```
 
 
     
-![png](output_74_0.png)
+![png](output_76_0.png)
     
 
+
+
+```python
+##################################
+# Defining the file path for an individual test image
+##################################
+IMAGES_PATH = r"image_classification_study\images"
+malformed_image_path = (os.path.join("..",IMAGES_PATH, "test_image.png"))
+
+```
+
+
+```python
+##################################
+# Automatically determining the filename and content type
+##################################
+malformed_image_path_filename = os.path.basename(image_path)
+malformed_image_path_content_type, _ = mimetypes.guess_type(malformed_image_path)
+
+```
+
+
+```python
+##################################
+# Sending a POST endpoint request
+# using malformed data to evaluate
+# the API's error handling function
+##################################
+with open(malformed_image_path, "rb") as file:
+    files = {"file": (malformed_image_path_filename, file, malformed_image_path_content_type)}
+    response = requests.post(f"{IC_FASTAPI_BASE_URL}/test-file-upload/", files=files)
+
+    if response.status_code == 200:
+        result = response.json()
+        print("File Upload Test Result:")
+        print(f"Filename: {result['filename']}")
+        print(f"Content Type: {result['content_type']}")
+        print(f"Size: {result['size']} bytes")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        
+```
+
+    Error: 400 - {"detail":"File must be a JPEG image"}
+    
 
 ## 1.3. Application Programming Interface (API) Development Using the Flask Framework <a class="anchor" id="1.3"></a>
 
@@ -1033,11 +1092,13 @@ with open(image_path, "rb") as file:
 
 #### 1.3.1.1 API Building <a class="anchor" id="1.3.1.1"></a>
 
-![cc_flaskapi_code.png](9519220f-5ff9-415f-bc0d-722312cee0e5.png)
+![cc_flaskapi_code.png](10723341-eac5-413e-bd18-2e5ca0e740a5.png)
 
 #### 1.3.1.2 API Testing <a class="anchor" id="1.3.1.2"></a>
 
 ![cc_flaskapi_activation.png](2c7149d3-ef57-4f6c-b05a-6848369ced82.png)
+
+![cc_flaskapi_documentation.png](58c27091-d998-4dcf-a56a-13e07b5a4589.png)
 
 ![cc_flaskapi_endpoints.png](87ff7dad-203d-451c-b981-2cfff81dd15d.png)
 
@@ -1166,11 +1227,13 @@ else:
 
 #### 1.3.2.1 API Building <a class="anchor" id="1.3.2.1"></a>
 
-![sp_flaskapi_code.png](52376aba-5f39-4fc8-bbc0-233fce6d451f.png)
+![sp_flaskapi_code.png](98b3e8a0-d312-4ee3-a32f-b432cc7986ed.png)
 
 #### 1.3.2.2 API Testing <a class="anchor" id="1.3.2.2"></a>
 
 ![sp_flaskapi_activation.png](72d36408-7169-48b5-af94-534e0f3527bf.png)
+
+![sp_flaskapi_documentation.png](9ea041e7-f9ff-4879-9eb9-7c6cd10ab257.png)
 
 ![sp_flaskapi_endpoints.png](3835d047-73a3-463a-9d36-5eca9fb587c6.png)
 
@@ -1729,7 +1792,7 @@ else:
 
 
     
-![png](output_106_0.png)
+![png](output_113_0.png)
     
 
 
@@ -1753,11 +1816,259 @@ else:
     
     
 
-### 1.3.3 Image Classfication <a class="anchor" id="1.3.3"></a>
+### 1.3.3 Image Classification <a class="anchor" id="1.3.3"></a>
 
 #### 1.3.3.1 API Building <a class="anchor" id="1.3.3.1"></a>
 
+![ic_flaskapi_code.png](666bd6af-8d49-4666-a639-5b817bad1fe7.png)
+
 #### 1.3.3.2 API Testing <a class="anchor" id="1.3.3.2"></a>
+
+![ic_flaskapi_activation.png](6353a838-016b-4d32-bf0e-0ede8dcb4177.png)
+
+![ic_flaskapi_documentation.png](b03dbdbb-2a57-4c85-8943-ec36a66a0f6b.png)
+
+![ic_flaskapi_endpoints.png](4d1ee757-a5ef-4771-821d-ee1be9f6c409.png)
+
+
+```python
+##################################
+# Loading Python Libraries
+##################################
+import requests
+import json
+import base64
+from IPython.display import display
+from PIL import Image
+import matplotlib.pyplot as plt
+import io
+from tensorflow.keras.utils import load_img
+import os
+import mimetypes
+
+```
+
+
+```python
+##################################
+# Defining the base URL of the API
+# for the image classification model
+##################################
+IC_FLASKAPI_BASE_URL = "http://127.0.0.1:5002"
+
+```
+
+
+```python
+##################################
+# Defining the file path for an individual test image
+##################################
+IMAGES_PATH = r"image_classification_study\images"
+image_path = (os.path.join("..",IMAGES_PATH, "test_image.jpg"))
+
+```
+
+
+```python
+##################################
+# Automatically determining the filename and content type
+##################################
+image_path_filename = os.path.basename(image_path)
+image_path_content_type, _ = mimetypes.guess_type(image_path)
+
+```
+
+
+```python
+##################################
+# Visualizing the individual test image
+##################################
+try:
+    image = Image.open(image_path)
+    print(f"Image File Path: {image_path}")
+    print(f"Image Format: {image.format}")
+    print(f"Image Size: {image.size}")
+    print(f"Image Mode: {image.mode}") 
+except Exception as e:
+    print(f"Error loading image: {e}")
+plt.imshow(image)
+plt.axis('off') 
+plt.title("Test Image")
+plt.show()
+
+```
+
+    Image File Path: ..\image_classification_study\images\test_image.jpg
+    Image Format: JPEG
+    Image Size: (215, 234)
+    Image Mode: RGB
+    
+
+
+    
+![png](output_126_1.png)
+    
+
+
+
+```python
+##################################
+# Generating a GET endpoint request for
+# for validating API service connection
+##################################
+response = requests.get(f"{IC_FLASKAPI_BASE_URL}/")
+if response.status_code == 200:
+    display("Response:", response.json())
+else:
+    print("Error:", response.status_code, response.text)
+
+```
+
+
+    'Response:'
+
+
+
+    {'message': 'Welcome to the Image Classification API!'}
+
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# ensuring that the file upload mechanism is working
+# by returning the the file metadata
+##################################
+with open(image_path, "rb") as file:
+    files = {"file": (image_path_filename, file, image_path_content_type)}
+    response = requests.post(f"{IC_FLASKAPI_BASE_URL}/test-file-upload/", files=files)
+
+    if response.status_code == 200:
+        result = response.json()
+        print("File Upload Test Result:")
+        print(f"Filename: {result['filename']}")
+        print(f"Content Type: {result['content_type']}")
+        print(f"Size: {result['size']} bytes")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+
+```
+
+    File Upload Test Result:
+    Filename: test_image.jpg
+    Content Type: image/jpeg
+    Size: 12103 bytes
+    
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# predicting the image category and
+# estimating class probabilities
+# of an individual test image
+##################################
+with open(image_path, "rb") as file:
+    files = {"file": ("image.jpg", file, "image/jpeg")}
+    response = requests.post(f"{IC_FLASKAPI_BASE_URL}/predict-image-category-class-probability/", files=files)
+    
+    if response.status_code == 200:
+        result = response.json()
+        print("Prediction Result:")
+        print(f"Predicted Class: {result['predicted_class']}")
+        print("Probabilities:")
+        for cls, prob in result["probabilities"].items():
+            print(f"{cls}: {prob:.5f}%")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+
+```
+
+    Prediction Result:
+    Predicted Class: Meningioma
+    Probabilities:
+    Glioma: 0.02788%
+    Meningioma: 87.02222%
+    No Tumor: 12.94989%
+    Pituitary: 0.00002%
+    
+
+
+```python
+##################################
+# Sending a POST endpoint request for
+# formulating the gradient class activation map
+# from the output of the first to third convolutional layers and
+# and superimposing on the actual image
+##################################
+with open(image_path, "rb") as file:
+    files = {"file": ("image.jpg", file, "image/jpeg")}
+    response = requests.post(f"{IC_FLASKAPI_BASE_URL}/visualize-image-gradcam/", files=files)
+    
+    if response.status_code == 200:
+        plot_data = response.json()["plot"]
+        # Decoding and displaying the plot
+        img = base64.b64decode(plot_data)
+        with open("image_gradcam_plot.png", "wb") as f:
+            f.write(img)
+            display(Image.open("image_gradcam_plot.png"))
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+
+```
+
+
+    
+![png](output_130_0.png)
+    
+
+
+
+```python
+##################################
+# Defining the file path for an individual test image
+##################################
+IMAGES_PATH = r"image_classification_study\images"
+malformed_image_path = (os.path.join("..",IMAGES_PATH, "test_image.png"))
+
+```
+
+
+```python
+##################################
+# Automatically determining the filename and content type
+##################################
+malformed_image_path_filename = os.path.basename(image_path)
+malformed_image_path_content_type, _ = mimetypes.guess_type(malformed_image_path)
+
+```
+
+
+```python
+##################################
+# Sending a POST endpoint request
+# using malformed data to evaluate
+# the API's error handling function
+##################################
+malformed_image_path = (os.path.join("..",IMAGES_PATH, "test_image.png"))
+with open(malformed_image_path, "rb") as file:
+    files = {"file": (malformed_image_path_filename, file, malformed_image_path_content_type)}
+    response = requests.post(f"{IC_FLASKAPI_BASE_URL}/test-file-upload/", files=files)
+
+    if response.status_code == 200:
+        result = response.json()
+        print("File Upload Test Result:")
+        print(f"Filename: {result['filename']}")
+        print(f"Content Type: {result['content_type']}")
+        print(f"Size: {result['size']} bytes")
+    else:
+        print(f"Error: {response.status_code} - {response.text}")
+        
+```
+
+    Error: 400 - {"error":"File must be a JPEG image"}
+    
+    
 
 ## 1.4. Consolidated Findings <a class="anchor" id="1.4"></a>
 

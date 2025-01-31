@@ -166,6 +166,15 @@ def read_root():
 ##################################
 @app.post("/test-file-upload/")
 async def test_file_upload(file: UploadFile = File(...)):
+    # Checking if the file part is present in the request
+    if not file:
+        raise HTTPException(status_code=400, detail="No file part in the request")
+
+    # Checking if a file was selected for upload
+    if file.filename == '':
+        raise HTTPException(status_code=400, detail="No selected file")
+
+    # Checking if the file is a JPEG image
     if file.content_type not in ["image/jpeg", "image/jpg"]:
         raise HTTPException(status_code=400, detail="File must be a JPEG image")
     try:       
@@ -185,6 +194,15 @@ async def test_file_upload(file: UploadFile = File(...)):
 ##################################
 @app.post("/predict-image-category-class-probability/")
 async def predict_image_category_class_probability(file: UploadFile = File(...)):
+    # Checking if the file part is present in the request
+    if not file:
+        raise HTTPException(status_code=400, detail="No file part in the request")
+
+    # Checking if a file was selected for upload
+    if file.filename == '':
+        raise HTTPException(status_code=400, detail="No selected file")
+
+    # Checking if the file is a JPEG image
     if file.content_type not in ["image/jpeg", "image/jpg"]:
         raise HTTPException(status_code=400, detail="File must be a JPEG image")
     try:
@@ -221,6 +239,15 @@ async def predict_image_category_class_probability(file: UploadFile = File(...))
 ##################################
 @app.post("/visualize-image-gradcam/")
 async def visualize_image_gradcam(file: UploadFile = File(...)):
+    # Checking if the file part is present in the request
+    if not file:
+        raise HTTPException(status_code=400, detail="No file part in the request")
+
+    # Checking if a file was selected for upload
+    if file.filename == '':
+        raise HTTPException(status_code=400, detail="No selected file")
+
+    # Checking if the file is a JPEG image
     if file.content_type not in ["image/jpeg", "image/jpg"]:
         raise HTTPException(status_code=400, detail="File must be a JPEG image")
     try:

@@ -33,6 +33,21 @@ Swagger(app)
 ##################################
 @app.route("/", methods=["GET"])
 def root():
+    """
+    Root endpoint to validate API service connection.
+    ---
+    responses:
+      200:
+        description: A welcome message
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Welcome to the Categorical Classification API!"
+    """
     return jsonify({"message": "Welcome to the Categorical Classification API!"})
 
 ##################################
@@ -44,6 +59,41 @@ def root():
 ##################################
 @app.route("/predict-individual-logit-probability-class", methods=["POST"])
 def predict_individual_logit_probability_class():
+    """
+    Predict logit, probability, and risk class for an individual test case.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            features_individual:
+              type: array
+              items:
+                type: number
+              example: [1.0, 2.0, 3.0, 4.0, 5.0]
+    responses:
+      200:
+        description: Prediction results for an individual test case
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                logit:
+                  type: number
+                  example: 0.123
+                probability:
+                  type: number
+                  example: 0.456
+                risk_class:
+                  type: string
+                  example: "Low-Risk"
+      400:
+        description: Bad request (e.g., invalid input)
+    """
     try:
         input_data = request.json
         # Converting the data input to a DataFrame with proper feature names
@@ -70,6 +120,54 @@ def predict_individual_logit_probability_class():
 ##################################
 @app.route("/predict-list-logit-probability-class", methods=["POST"])
 def predict_list_logit_probability_class():
+    """
+    Predict logit, probability, and risk class for a list of test cases.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            features_list:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+              example: [[1.0, 2.0, 3.0, 4.0, 5.0], [6.0, 7.0, 8.0, 9.0, 10.0]]
+    responses:
+      200:
+        description: Prediction results for a list of test cases
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                logit:
+                  type: array
+                  items:
+                    type: number
+                  example: [0.123, 0.456]
+                probability:
+                  type: array
+                  items:
+                    type: number
+                  example: [0.456, 0.789]
+                logit_sorted:
+                  type: array
+                  items:
+                    type: number
+                  example: [0.123, 0.456]
+                probability_sorted:
+                  type: array
+                  items:
+                    type: number
+                  example: [0.456, 0.789]
+      400:
+        description: Bad request (e.g., invalid input)
+    """
     try:
         input_data = request.json
         # Converting the data input to a DataFrame with proper feature names

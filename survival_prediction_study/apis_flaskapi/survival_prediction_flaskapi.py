@@ -13,6 +13,7 @@ import io
 import base64
 import matplotlib
 matplotlib.use('Agg')
+from flasgger import Swagger
 
 ##################################
 # Defining file paths
@@ -48,6 +49,7 @@ except Exception as e:
 # Initializing the Flask app
 ##################################
 app = Flask(__name__)
+Swagger(app)
 
 ##################################
 # Defining a GET endpoint for
@@ -55,6 +57,21 @@ app = Flask(__name__)
 ##################################
 @app.route("/", methods=["GET"])
 def root():
+    """
+    Root endpoint to validate API service connection.
+    ---
+    responses:
+      200:
+        description: A welcome message
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                message:
+                  type: string
+                  example: "Welcome to the Survival Prediction API!"
+    """
     return jsonify({"message": "Welcome to the Survival Prediction API!"})
 
 ##################################
@@ -66,6 +83,52 @@ def root():
 ##################################
 @app.route("/compute-individual-coxph-survival-probability-class/", methods=["POST"])
 def compute_individual_coxph_survival_probability_class():
+    """
+    Compute survival probabilities and risk category for an individual test case.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            features_individual:
+              type: array
+              items:
+                type: number
+              example: [65, 0, 38, 1, 1.2, 137]
+    responses:
+      200:
+        description: Survival probabilities and risk category for an individual test case
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                survival_function:
+                  type: array
+                  items:
+                    type: number
+                  example: [0.95, 0.90, 0.85, 0.80, 0.75]
+                survival_time:
+                  type: array
+                  items:
+                    type: number
+                  example: [50, 100, 150, 200, 250]
+                survival_probabilities:
+                  type: array
+                  items:
+                    type: number
+                  example: [95.0, 90.0, 85.0, 80.0, 75.0]
+                risk_category:
+                  type: string
+                  example: "Low-Risk"
+      400:
+        description: Bad request (e.g., missing 'features_individual' in request)
+      500:
+        description: Internal server error
+    """
     try:
         # Getting JSON data from the request
         data = request.json
@@ -115,6 +178,43 @@ def compute_individual_coxph_survival_probability_class():
 ##################################
 @app.route("/compute-list-coxph-survival-profile/", methods=["POST"])
 def compute_list_coxph_survival_profile():
+    """
+    Compute survival profiles for a list of test cases.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            features_list:
+              type: array
+              items:
+                type: array
+                items:
+                  type: number
+              example: [[65, 0, 38, 1, 1.2, 137], [70, 1, 40, 0, 1.5, 135]]
+    responses:
+      200:
+        description: Survival profiles for a list of test cases
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                survival_profiles:
+                  type: array
+                  items:
+                    type: array
+                    items:
+                      type: number
+                  example: [[0.95, 0.90, 0.85], [0.90, 0.85, 0.80]]
+      400:
+        description: Bad request (e.g., missing 'features_list' in request)
+      500:
+        description: Internal server error
+    """
     try:
         # Getting JSON data from the request
         data = request.json
@@ -145,6 +245,39 @@ def compute_list_coxph_survival_profile():
 ##################################
 @app.route("/bin-numeric-model-feature/", methods=["POST"])
 def bin_numeric_model_feature():
+    """
+    Dichotomize numeric features based on the median.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            X_original_list:
+              type: array
+              items:
+                type: object
+              example: [{"AGE": 65, "EJECTION_FRACTION": 38}, {"AGE": 70, "EJECTION_FRACTION": 40}]
+            numeric_feature:
+              type: string
+              example: "AGE"
+    responses:
+      200:
+        description: Dichotomized numeric features
+        content:
+          application/json:
+            schema:
+              type: array
+              items:
+                type: object
+              example: [{"AGE": "Low", "EJECTION_FRACTION": 38}, {"AGE": "High", "EJECTION_FRACTION": 40}]
+      400:
+        description: Bad request (e.g., missing 'X_original_list' or 'numeric_feature' in request)
+      500:
+        description: Internal server error
+    """
     try:
         # Getting JSON data from the request
         data = request.json
@@ -174,6 +307,43 @@ def bin_numeric_model_feature():
 ##################################
 @app.route("/plot-kaplan-meier/", methods=["POST"])
 def plot_kaplan_meier():
+    """
+    Plot Kaplan-Meier survival curves.
+    ---
+    parameters:
+      - name: body
+        in: body
+        required: true
+        schema:
+          type: object
+          properties:
+            df:
+              type: array
+              items:
+                type: object
+              example: [{"TIME": 100, "DEATH_EVENT": 1, "AGE": "Low"}, {"TIME": 200, "DEATH_EVENT": 0, "AGE": "High"}]
+            cat_var:
+              type: string
+              example: "AGE"
+            new_case_value:
+              type: string
+              example: "Low"
+    responses:
+      200:
+        description: Base64-encoded Kaplan-Meier plot
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                plot:
+                  type: string
+                  example: "ABCDEFGHIJKLMNOPQRSTUVWXYZ"
+      400:
+        description: Bad request (e.g., missing 'df' or 'cat_var' in request)
+      500:
+        description: Internal server error
+    """
     try:
         # Getting JSON data from the request
         data = request.json
@@ -233,5 +403,3 @@ def plot_kaplan_meier():
 ##################################
 if __name__ == "__main__":
     app.run(host="0.0.0.0", port=5001)
-
-    
