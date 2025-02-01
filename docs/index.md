@@ -15,7 +15,7 @@
             * [1.1.2.1 Data Background](#1.1.2.1)
             * [1.1.2.2 Model Background](#1.1.2.2)
             * [1.1.2.3 Deployment Background](#1.1.2.3)
-        * [1.1.3 Survival Prediction](#1.1.3)
+        * [1.1.3 Image Classification](#1.1.3)
             * [1.1.3.1 Data Background](#1.1.3.1)
             * [1.1.3.2 Model Background](#1.1.3.2)
             * [1.1.3.3 Deployment Background](#1.1.3.3)
@@ -23,20 +23,20 @@
         * [1.2.1 Categorical Classification](#1.2.1)
             * [1.2.1.1 API Building](#1.2.1.1)
             * [1.2.1.2 API Testing](#1.2.1.2)
-        * [1.2.2 Categorical Classification](#1.2.2)
+        * [1.2.2 Survival Prediction](#1.2.2)
             * [1.2.2.1 API Building](#1.2.2.1)
             * [1.2.2.2 API Testing](#1.2.2.2)
-        * [1.2.3 Categorical Classification](#1.2.3)
+        * [1.2.3 Image Classification](#1.2.3)
             * [1.2.3.1 API Building](#1.2.3.1)
             * [1.2.3.2 API Testing](#1.2.3.2)
     * [1.3 Application Programming Interface (API) Development Using the Flask Framework](#1.3)
         * [1.3.1 Categorical Classification](#1.3.1)
             * [1.3.1.1 API Building](#1.3.1.1)
             * [1.3.1.2 API Testing](#1.3.1.2)
-        * [1.3.2 Categorical Classification](#1.3.2)
+        * [1.3.2 Survival Prediction](#1.3.2)
             * [1.3.2.1 API Building](#1.3.2.1)
             * [1.3.2.2 API Testing](#1.3.2.2)
-        * [1.3.3 Categorical Classification](#1.3.3)
+        * [1.3.3 Image Classification](#1.3.3)
             * [1.3.3.1 API Building](#1.3.3.1)
             * [1.3.3.2 API Testing](#1.3.3.2)
     * [1.4 Consolidated Findings](#1.1)
@@ -46,6 +46,15 @@
 ***
 
 # 1. Table of Contents <a class="anchor" id="TOC"></a>
+
+This project explores the modular deployment of machine learning models using Representational State Transfer (RESTful) Application Programming Interfaces (APIs), specifically comparing **FastAPI** and **Flask** frameworks in <mark style="background-color: #CCECFF"><b>Python</b></mark>. Pre-trained models were loaded and integrated into the APIs, including a [Stacked Ensemble binary classification model for predicting lung cancer probabilities](https://johnpaulinepineda.github.io/Portfolio_Project_54/), a [Cox Proportional Hazards survival prediction model for estimating heart failure survival profiles](https://johnpaulinepineda.github.io/Portfolio_Project_55/), and a [Convolutional Neural Network-based image classification model for determining class categories for brain magnetic resonance images](https://johnpaulinepineda.github.io/Portfolio_Project_56/). The study objectives included understanding the similarities and differences between FastAPI and Flask in implementating and documenting RESTful API endpoints to process data preprocessing and model prediction logic, handling a variety of input types (such as structured data for class and survival probability predictions and file uploads for image classification), enabling diverse output formats (including string, float, list and base64-encoded visualization objects, depending on the model), and ensuring robust error handling and validation. All results were consolidated in a [<span style="color: #FF0000"><b>Summary</b></span>](#Summary) presented at the end of the document. 
+
+[RESTful APIs](https://www.oreilly.com/library/view/building-machine-learning/9781492045106/) are a standardized architectural style for designing networked applications, enabling communication between clients and servers over HTTP. They use HTTP methods like GET, POST, PUT, and DELETE to perform CRUD (Create, Read, Update, Delete) operations on resources, which are typically represented in JSON or XML format. RESTful APIs are stateless, meaning each request from a client to a server must contain all the information needed to process the request, ensuring scalability and reliability. For machine learning model deployment, RESTful APIs serve as a bridge between trained models and end-users or applications, allowing models to be accessed remotely via HTTP requests. This enables real-time predictions, batch processing, and integration with web or mobile applications. RESTful APIs are particularly significant for machine learning because they provide a standardized, platform-agnostic way to serve predictions, making models accessible to a wide range of clients. They also facilitate modularity, as models can be updated or replaced without affecting the client-side application. Additionally, RESTful APIs support scalability, as they can be deployed on cloud platforms and scaled horizontally to handle increased traffic. Error handling and validation mechanisms in RESTful APIs ensure robustness, which is critical for machine learning applications where malformed inputs can lead to incorrect predictions. By encapsulating machine learning logic behind APIs, developers can abstract away the complexity of model inference, making it easier for non-technical users to interact with the models. RESTful APIs also enable versioning, allowing multiple versions of a model to coexist and be accessed independently. This is particularly useful for A/B testing or gradual rollouts of updated models. Furthermore, RESTful APIs can be secured using authentication and authorization mechanisms, ensuring that only authorized users or applications can access the model. Overall, RESTful APIs are a cornerstone of modern machine learning deployment, providing a flexible, scalable, and secure way to serve predictions in production environments.
+
+[FastAPI](https://fastapi.tiangolo.com/) is a modern, high-performance web framework for building APIs with Python, specifically designed for speed and ease of use. It is built on top of Starlette for web handling and Pydantic for data validation, making it one of the fastest Python frameworks available. FastAPI leverages Python type hints to automatically generate OpenAPI (Swagger) documentation, which simplifies API testing and debugging. Its asynchronous capabilities, powered by Python’s async and await keywords, make it ideal for handling high-concurrency workloads, such as serving machine learning models to multiple clients simultaneously. FastAPI’s built-in dependency injection system allows for modular and reusable code, which is particularly useful for complex machine learning pipelines. The framework also supports WebSocket communication, enabling real-time interactions, though this is less commonly used in machine learning deployments. One of FastAPI’s key strengths is its automatic data validation using Pydantic, which ensures that inputs to machine learning models are correctly formatted and reduces the risk of errors during inference. However, FastAPI’s reliance on asynchronous programming can be a double-edged sword; while it improves performance, it may require developers to have a deeper understanding of asynchronous programming concepts. Additionally, FastAPI’s ecosystem, while growing, is still smaller than that of more established frameworks like Flask, which can limit the availability of third-party plugins and extensions. Despite these limitations, FastAPI is widely regarded as an excellent choice for machine learning model deployment due to its speed, scalability, and developer-friendly features. Its ability to automatically generate API documentation and validate inputs makes it particularly well-suited for production environments where reliability and maintainability are critical.
+
+[Flask](https://flask.palletsprojects.com/en/stable/) Flask is a lightweight and flexible web framework for Python, designed to be simple and easy to use while providing the essentials for building web applications and APIs. It follows the WSGI (Web Server Gateway Interface) standard and is often described as a "micro-framework" because it provides only the core components needed for web development, such as routing and request handling, while leaving other functionalities to extensions. Flask’s simplicity and minimalistic design make it highly customizable, allowing developers to tailor it to specific use cases, including machine learning model deployment. Flask’s synchronous nature makes it easier to understand and use for developers who are not familiar with asynchronous programming, though this can limit its performance in high-concurrency scenarios. For machine learning deployments, Flask’s simplicity is both a strength and a weakness; while it is easy to set up and deploy, it lacks built-in features like data validation and automatic documentation, which must be implemented manually or through extensions like Flasgger. Flask’s extensive ecosystem of extensions, such as Flask-RESTful for building RESTful APIs and Flask-SQLAlchemy for database integration, provides additional functionality but can also introduce complexity. One of Flask’s key strengths is its widespread adoption and community support, which makes it easier to find tutorials, documentation, and third-party tools. However, Flask’s synchronous architecture can become a bottleneck when serving machine learning models to multiple clients simultaneously, as it may struggle to handle high traffic efficiently. Despite these limitations, Flask remains a popular choice for machine learning model deployment, particularly for smaller-scale applications or prototypes where simplicity and ease of use are prioritized over performance. Its flexibility and extensive ecosystem make it a versatile tool for developers, though it may require more effort to achieve the same level of robustness and scalability as FastAPI.
+
 
 ## 1.1. Project Background <a class="anchor" id="1.1"></a>
 
@@ -2076,6 +2085,7 @@ with open(malformed_image_path, "rb") as file:
 
 # 3. References <a class="anchor" id="References"></a>
 
+* **[Book]** [Building Machine Learning Powered Applications: Going From Idea to Product](https://www.oreilly.com/library/view/building-machine-learning/9781492045106/) by Emmanuel Ameisen
 * **[Book]** [Designing Machine Learning Systems: An Iterative Process for Production-Ready Applications](https://www.oreilly.com/library/view/designing-machine-learning/9781098107956/) by Chip Huyen
 * **[Book]** [Machine Learning Bookcamp: Build a Portfolio of Real-Life Projects](https://www.manning.com/books/machine-learning-bookcamp) by Alexey Grigorev and Adam Newmark 
 * **[Book]** [Building Machine Learning Pipelines: Automating Model Life Cycles with TensorFlow](https://www.oreilly.com/library/view/building-machine-learning/9781492053187/) by Hannes Hapke and Catherine Nelson
