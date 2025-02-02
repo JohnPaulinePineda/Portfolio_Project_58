@@ -53,7 +53,7 @@ This project explores the modular deployment of machine learning models using Re
 
 [FastAPI](https://fastapi.tiangolo.com/) is a modern, high-performance web framework for building APIs with Python, specifically designed for speed and ease of use. It is built on top of Starlette for web handling and Pydantic for data validation, making it one of the fastest Python frameworks available. FastAPI leverages Python type hints to automatically generate OpenAPI (Swagger) documentation, which simplifies API testing and debugging. Its asynchronous capabilities, powered by Python’s async and await keywords, make it ideal for handling high-concurrency workloads, such as serving machine learning models to multiple clients simultaneously. FastAPI’s built-in dependency injection system allows for modular and reusable code, which is particularly useful for complex machine learning pipelines. The framework also supports WebSocket communication, enabling real-time interactions, though this is less commonly used in machine learning deployments. One of FastAPI’s key strengths is its automatic data validation using Pydantic, which ensures that inputs to machine learning models are correctly formatted and reduces the risk of errors during inference. However, FastAPI’s reliance on asynchronous programming can be a double-edged sword; while it improves performance, it may require developers to have a deeper understanding of asynchronous programming concepts. Additionally, FastAPI’s ecosystem, while growing, is still smaller than that of more established frameworks like Flask, which can limit the availability of third-party plugins and extensions. Despite these limitations, FastAPI is widely regarded as an excellent choice for machine learning model deployment due to its speed, scalability, and developer-friendly features. Its ability to automatically generate API documentation and validate inputs makes it particularly well-suited for production environments where reliability and maintainability are critical.
 
-[Flask](https://flask.palletsprojects.com/en/stable/) Flask is a lightweight and flexible web framework for Python, designed to be simple and easy to use while providing the essentials for building web applications and APIs. It follows the WSGI (Web Server Gateway Interface) standard and is often described as a "micro-framework" because it provides only the core components needed for web development, such as routing and request handling, while leaving other functionalities to extensions. Flask’s simplicity and minimalistic design make it highly customizable, allowing developers to tailor it to specific use cases, including machine learning model deployment. Flask’s synchronous nature makes it easier to understand and use for developers who are not familiar with asynchronous programming, though this can limit its performance in high-concurrency scenarios. For machine learning deployments, Flask’s simplicity is both a strength and a weakness; while it is easy to set up and deploy, it lacks built-in features like data validation and automatic documentation, which must be implemented manually or through extensions like Flasgger. Flask’s extensive ecosystem of extensions, such as Flask-RESTful for building RESTful APIs and Flask-SQLAlchemy for database integration, provides additional functionality but can also introduce complexity. One of Flask’s key strengths is its widespread adoption and community support, which makes it easier to find tutorials, documentation, and third-party tools. However, Flask’s synchronous architecture can become a bottleneck when serving machine learning models to multiple clients simultaneously, as it may struggle to handle high traffic efficiently. Despite these limitations, Flask remains a popular choice for machine learning model deployment, particularly for smaller-scale applications or prototypes where simplicity and ease of use are prioritized over performance. Its flexibility and extensive ecosystem make it a versatile tool for developers, though it may require more effort to achieve the same level of robustness and scalability as FastAPI.
+[Flask](https://flask.palletsprojects.com/en/stable/) is a lightweight and flexible web framework for Python, designed to be simple and easy to use while providing the essentials for building web applications and APIs. It follows the WSGI (Web Server Gateway Interface) standard and is often described as a "micro-framework" because it provides only the core components needed for web development, such as routing and request handling, while leaving other functionalities to extensions. Flask’s simplicity and minimalistic design make it highly customizable, allowing developers to tailor it to specific use cases, including machine learning model deployment. Flask’s synchronous nature makes it easier to understand and use for developers who are not familiar with asynchronous programming, though this can limit its performance in high-concurrency scenarios. For machine learning deployments, Flask’s simplicity is both a strength and a weakness; while it is easy to set up and deploy, it lacks built-in features like data validation and automatic documentation, which must be implemented manually or through extensions like Flasgger. Flask’s extensive ecosystem of extensions, such as Flask-RESTful for building RESTful APIs and Flask-SQLAlchemy for database integration, provides additional functionality but can also introduce complexity. One of Flask’s key strengths is its widespread adoption and community support, which makes it easier to find tutorials, documentation, and third-party tools. However, Flask’s synchronous architecture can become a bottleneck when serving machine learning models to multiple clients simultaneously, as it may struggle to handle high traffic efficiently. Despite these limitations, Flask remains a popular choice for machine learning model deployment, particularly for smaller-scale applications or prototypes where simplicity and ease of use are prioritized over performance. Its flexibility and extensive ecosystem make it a versatile tool for developers, though it may require more effort to achieve the same level of robustness and scalability as FastAPI.
 
 
 ## 1.1. Project Background <a class="anchor" id="1.1"></a>
@@ -272,13 +272,129 @@ This project focuses on leveraging the **Convolutional Neural Network Model** us
 
 #### 1.1.3.1 Data Background <a class="anchor" id="1.1.3.1"></a>
 
+1. The original dataset comprised labeled images.
+2. The target variable is of multi-class categorical data type:
+    * <span style="color: #FF0000">CLASS</span> (Categorical: No Tumor, Clear MRI | Pituitary, MRI Putuitary Tumors | Meningioma, MRI Meningioma Tumors | Glioma, MRI Glioma Tumors)
+3. The hierarchical representation of image features enables the model to transform raw pixel data into a meaningful and compact representation, allowing it to make accurate predictions during image classification. The different features automatically learned during the training process are given (but not limited to) as follows:  
+    * <span style="color: #FF0000">OBJECT TEXTURE</span> (Repetitive gradients among pixel intensities)
+    * <span style="color: #FF0000">OBJECT EDGE</span> (Abrupt changes or transitions on pixel intensities)
+    * <span style="color: #FF0000">OBJECT PATTERN</span> (Distinctive structural features in pixel intensities)
+    * <span style="color: #FF0000">OBJECT SHAPE</span> (Spatial relationships and contours among pixel intensities)
+    * <span style="color: #FF0000">SPATIAL HIERARCHY</span> (Layered abstract representations of spatial structures in image objects)
+    * <span style="color: #FF0000">SPATIAL LOCALIZATION</span> (Boundaries and position of the object within the image)
+
+
 ![ic_data_background.png](174e5369-84c0-413f-92c6-fdf18cfdaa5e.png)
 
 #### 1.1.3.2 Model Background <a class="anchor" id="1.1.3.2"></a>
 
+1.  Candidate [convolutional neural network models](https://www.manning.com/books/deep-learning-with-python-second-edition) were formulated using [Tensorflow Keras layers](https://www.tensorflow.org/api_docs/python/tf/keras/layers) as follows:
+    * **Convolutional Layer** (<span style="color: #FF0000">[Conv_2D](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Conv2D?_gl=1*1t7yw59*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - extracts features from input images using convolutional filters
+    * **Maximum Pooling Layer** (<span style="color: #FF0000">[MaxPooling2D](https://www.tensorflow.org/api_docs/python/tf/keras/layers/MaxPool2D?_gl=1*1t7yw59*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - Reduces spatial dimensions and downsamples feature maps
+    * **Activation Layer** (<span style="color: #FF0000">[Activation](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Activation?_gl=1*1sb2q85*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>)- Applies an activation function element-wise to the output
+    * **Flatten Layer** (<span style="color: #FF0000">[Flatten](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Flatten?_gl=1*1sb2q85*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - Flattens the input to a 1D array, preparing for fully connected layers
+    * **Dense Layer** (<span style="color: #FF0000">[Dense](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dense?_gl=1*1sb2q85*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - Fully connected layer for classification
+4. Different iterations of the model were formulated using variations in the inclusion or exclusion of the following regularization layers:
+    * **Dropout Layer** (<span style="color: #FF0000">[Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - randomly drops (sets to zero) a fraction of the neurons during training reducing co-dependencies between them
+    * **Batch Normalization Layer** (<span style="color: #FF0000">[BatchNormalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..)</span>) - adjusts and scales the inputs to a layer reducing the sensitivity to weight initialization choices
+2. A subset of hyperparameters for the different layers were fixed during model training including:
+    * <span style="color: #FF0000">kernel_size</span> - setting used to define the local region the convolutional layer considers when processing the input
+    * <span style="color: #FF0000">activation</span> - setting used to introduce non-linearity into the model, enabling it to learn complex relationships in the data
+    * <span style="color: #FF0000">pool_size</span> - setting used to reduce the spatial dimensions of the feature maps to focus on the most important features
+    * <span style="color: #FF0000">padding</span> - setting used to control the spatial size and shape for every convolutional operation at each stage
+    * <span style="color: #FF0000">optimizer</span> - setting used to determine how the model's weights are updated during training
+    * <span style="color: #FF0000">batch_size</span> - setting used to determine how many samples are used in each iteration of training
+    * <span style="color: #FF0000">loss</span> - setting used to define the objective that the model seeks to minimize during training
+3. A subset of hyperparameters for the different layers were optimized during model training including:
+    * <span style="color: #FF0000">filters</span> - setting used to capture spatial hierarchies and features in the input images
+    * <span style="color: #FF0000">units</span> - setting used to process the flattened feature maps and determine the dimensionality of the output space
+    * <span style="color: #FF0000">learning_rate</span> - setting used to determine the step size at each iteration during optimization
+4. Two CNN model structures were additionally evaluated as follows:
+    * **Simple**
+        * Lesser number of <span style="color: #FF0000">Conv_2D</span>
+        * Lower values set for <span style="color: #FF0000">filters</span>
+        * Lower values set for <span style="color: #FF0000">units</span>
+    * **Complex**
+        * Higher number of <span style="color: #FF0000">Conv_2D</span>
+        * Higher values set for <span style="color: #FF0000">filters</span>
+        * Higher values set for <span style="color: #FF0000">units</span>
+5. The model development process involved combining different **CNN Model Structures** and **Regularization Layers** with optimal model performance determined using **precision**, **recall** and **F1 score**.
+    * Simple CNN model developed from augmented data with no regularization.
+    * Complex CNN model developed from augmented data with no regularization.
+    * Simple CNN model developed from augmented data with [Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+    * Complex CNN model developed from augmented data with [Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+    * Simple CNN model developed from augmented data with [Batch Normalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+    * Complex CNN model developed from augmented data with [Batch Normalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+    * Simple CNN model developed from augmented data with [Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) and [Batch Normalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+    * Complex CNN model developed from augmented data with [Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) and [Batch Normalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization.
+6. The complex CNN model developed from augmented data with [Dropout](https://www.tensorflow.org/api_docs/python/tf/keras/layers/Dropout?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) and [Batch Normalization](https://www.tensorflow.org/api_docs/python/tf/keras/layers/BatchNormalization?_gl=1*1wdqb4j*_up*MQ..*_ga*MTg5OTQ1ODc4NS4xNzM4NDgwNzE0*_ga_W0YLR4190T*MTczODQ4MDcxNC4xLjAuMTczODQ4MDcxNC4wLjAuMA..) regularization was selected as the final model by demonstrating the best validation **precision**, **recall** and **F1 score** with minimal overfitting. 
+7. The final CNN model contained 6,446,596 trainable parameters broken down per layer as follows:
+    * <span style="color: #FF0000">Conv2D: cdrbnr_complex_conv2d_0</span>
+        * output size = 227x227x16
+        * number of parameters = 160
+    * <span style="color: #FF0000">MaxPooling2D: cdrbnr_complex_max_pooling2d_0</span>
+        * output size = 113x113x16
+        * number of parameters = 0
+    * <span style="color: #FF0000">Conv2D: cdrbnr_complex_conv2d_1</span>
+        * output size = 113x113x32
+        * number of parameters = 4,640
+    * <span style="color: #FF0000">MaxPooling2D: cdrbnr_complex_max_pooling2d_1</span>
+        * output size = 56x56x32
+        * number of parameters = 0
+    * <span style="color: #FF0000">Conv2D: cdrbnr_complex_conv2d_2</span>
+        * output size = 56x56x64
+        * number of parameters = 18,496
+    * <span style="color: #FF0000">BatchNormalization: cdrbnr_complex_batch_normalization</span>
+        * output size = 56x56x64
+        * number of parameters = 256
+    * <span style="color: #FF0000">Activation: cdrbnr_complex_activation</span>
+        * output size = 56x56x64
+        * number of parameters = 0 
+    * <span style="color: #FF0000">MaxPooling2D: cdrbnr_complex_max_pooling2d_2</span>
+        * output size = 28x28x64
+        * number of parameters = 0
+    * <span style="color: #FF0000">Flatten: cdrbnr_complex_flatten</span>
+        * output size = 50,176
+        * number of parameters = 0
+    * <span style="color: #FF0000">Dense: cdrbnr_complex_dense_0</span>
+        * output size = 128
+        * number of parameters = 6,422,656
+    * <span style="color: #FF0000">Dropout: cdrbnr_complex_dropout</span>
+        * output size = 128
+        * number of parameters = 0
+    * <span style="color: #FF0000">Dense: cdrbnr_complex_dense_1</span>
+        * output size = 4
+        * number of parameters = 516
+
+
 ![ic_model_background.png](37b6c7a7-9454-4849-951c-8e42c91e9555.png)
 
 #### 1.1.3.3 Deployment Background <a class="anchor" id="1.1.3.3"></a>
+
+1. The prediction model was deployed using a web application hosted at [<mark style="background-color: #CCECFF"><b>Streamlit</b></mark>](https://brain-mri-image-classification.streamlit.app/).
+2. The user interface input consists of the following:
+    * First action button to:
+        * randomly sample an MR image as a test case
+        * conduct image preprocessing
+        * display the RGB channels
+        * activates the second action button
+    * Second action button to:
+        * load fitted CNN model
+        * estimate image class probabilities
+        * predict class categories
+        * perform the Grad-CAM computation
+        * display the Grad-CAM visualization for all convolutional layers
+        * render test case prediction summary
+3. The user interface ouput consists of the following:
+    * RGB plots to:
+        * provide a baseline visualization of the test case by channel
+    * Grad-CAM plots to:
+        * present insights into how the model progressively learns features (from low-level to high-level) for each convolutional layer, aiding in understanding spatial and hierarchical representation
+        * highlight image regions that influenced the model's decision the most allowing to verify whether the model focuses on relevant areas
+    * summary table to:
+        * indicate if the model prediction matches the ground truth
+        * present the estimated class probabilities and predicted class  for the test case
+
 
 ![ic_deployment_background.png](d56f11c3-97b4-4211-980d-b599beb0a7c7.png)
 
@@ -287,6 +403,7 @@ This project focuses on leveraging the **Convolutional Neural Network Model** us
 ### 1.2.1 Categorical Classification <a class="anchor" id="1.2.1"></a>
 
 #### 1.2.1.1 API Building <a class="anchor" id="1.2.1.1"></a>
+
 
 ![cc_fastapi_code.png](0c035228-e098-4344-864f-a2b5502a927e.png)
 
@@ -1029,6 +1146,59 @@ else:
 ### 1.2.3 Image Classification <a class="anchor" id="1.2.3"></a>
 
 #### 1.2.3.1 API Building <a class="anchor" id="1.2.3.1"></a>
+
+1. An API code using the FastAPI framework was developed for deploying a CNN image classification model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as FastAPI, File, UploadFile, HTTPException, and JSONResponse for API development.
+        * Included libraries for deep learning (tensorflow, keras), image processing (PIL, cv2), and visualization (matplotlib).
+        * Used io, os, random, math, and base64 for file handling, random seed setting, and encoding.
+    * **Setting Random Seed**
+        * Defined a set_seed function to ensure reproducibility by setting random seeds for numpy, tensorflow, keras, and Python’s random module.
+        * Enabled deterministic operations in TensorFlow to ensure consistent results across runs.
+    * **Defining File Paths**
+        * Specified the MODELS_PATH to locate the pre-trained CNN model and other related files.
+    * **Loading the Pre-Trained CNN Model**
+        * Loaded the pre-trained CNN model (cdrbnr_complex_best_model.keras) using keras.models.load_model.
+        * Handled potential errors during model loading with a try-except block.
+    * **Recreating the CNN Model Using Functional API**
+        * Recreated the CNN model using Keras’ Functional API to access intermediate layers for Grad-CAM visualization.
+        * Defined the input layer and sequentially applied layers from the original model to reconstruct it.
+    * **Compiling the Functional API Model**
+        * Compiled the recreated model with the same loss function (categorical_crossentropy), optimizer (adam), and metrics (Recall) as the original model.
+    * **Creating Gradient Models for Grad-CAM**
+        * Created three gradient models (grad_model_first_conv2d, grad_model_second_conv2d, grad_model_third_conv2d) to extract outputs from the first, second, and third convolutional layers.
+        * Compiled these models with the same parameters as the main model.
+    * **Initializing the FastAPI App**
+        * Created a FastAPI instance (app) to define and serve API endpoints.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * File Upload Test Endpoint (/test-file-upload/): A POST endpoint to test file upload functionality, returning file metadata (filename, content type, size).
+        * Image Classification Endpoint (/predict-image-category-class-probability/): A POST endpoint to predict the image category and estimate class probabilities for an uploaded JPEG image.
+        * Grad-CAM Visualization Endpoint (/visualize-image-gradcam/): A POST endpoint to generate and return Grad-CAM heatmaps for the uploaded image.
+    * **Image Preprocessing**
+        * Read and resized uploaded images to the required input size (227x227 pixels).
+        * Converted images to grayscale and normalized pixel values to the range (0, 1).
+        * Expanded image dimensions to match the model’s input shape.
+    * **Model Inference**
+        * Used the pre-trained CNN model to predict the image category and class probabilities.
+        * Mapped predicted class indices to human-readable labels (e.g., "No Tumor", "Pituitary", "Meningioma", "Glioma").
+    * **Grad-CAM Heatmap Generation**
+        * Defined a make_gradcam_heatmap function to compute Grad-CAM heatmaps using TensorFlow’s GradientTape.
+        * Generated heatmaps for the first, second, and third convolutional layers.
+        * Superimposed heatmaps onto the original image using a color map (turbo) and transparency.
+    * **Visualization and Encoding**
+        * Created a multi-panel plot to display Grad-CAM heatmaps for all three convolutional layers.
+        * Saved the plot to a buffer, encoded it as a base64 string, and returned it in the API response.
+    * **Error Handling**
+        * Implemented robust error handling for invalid file uploads (e.g., missing files, non-JPEG images).
+        * Used HTTPException to return appropriate error messages and status codes (e.g., 400 for bad requests, 500 for server errors).
+    * **Running the FastAPI App**
+        * Used uvicorn to run the FastAPI app on localhost at port 8002.
+2. Key features of the API code included the following:
+    * Supported JPEG image uploads and validated file types.
+    * Provided both classification results and visual explanations (Grad-CAM) for model predictions.
+    * Ensured reproducibility and deterministic behavior through random seed setting.
+
 
 ![ic_fastapi_code.png](64d15f91-4423-4c22-8e59-97fa8a3a5226.png)
 
@@ -2010,6 +2180,61 @@ else:
 ### 1.3.3 Image Classification <a class="anchor" id="1.3.3"></a>
 
 #### 1.3.3.1 API Building <a class="anchor" id="1.3.3.1"></a>
+
+1. An API code using the Flask framework was developed for deploying a CNN image classification model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as Flask, request, jsonify, and send_file for API development.
+        * Included libraries for deep learning (tensorflow, keras), image processing (PIL, cv2), and visualization (matplotlib).
+        * Used io, os, random, math, and base64 for file handling, random seed setting, and encoding.
+        * Integrated Flasgger for Swagger API documentation.
+    * **Setting Random Seed**
+        * Defined a set_seed function to ensure reproducibility by setting random seeds for numpy, tensorflow, keras, and Python’s random module.
+        * Enabled deterministic operations in TensorFlow to ensure consistent results across runs.
+    * **Defining File Paths**
+        * Specified the MODELS_PATH to locate the pre-trained CNN model and other related files.
+    * **Loading the Pre-Trained CNN Model**
+        * Loaded the pre-trained CNN model (cdrbnr_complex_best_model.keras) using keras.models.load_model.
+        * Handled potential errors during model loading with a try-except block.
+    * **Recreating the CNN Model Using Functional API**
+        * Recreated the CNN model using Keras’ Functional API to access intermediate layers for Grad-CAM visualization.
+        * Defined the input layer and sequentially applied layers from the original model to reconstruct it.
+    * **Compiling the Functional API Model**
+        * Compiled the recreated model with the same loss function (categorical_crossentropy), optimizer (adam), and metrics (Recall) as the original model.
+    * **Creating Gradient Models for Grad-CAM**
+        * Created three gradient models (grad_model_first_conv2d, grad_model_second_conv2d, grad_model_third_conv2d) to extract outputs from the first, second, and third convolutional layers.
+        * Compiled these models with the same parameters as the main model.
+    * **Initializing the FastAPI App**
+        * Created a Flask instance (app) to define and serve API endpoints.
+        * Integrated Swagger for automatic API documentation.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * File Upload Test Endpoint (/test-file-upload/): A POST endpoint to test file upload functionality, returning file metadata (filename, content type, size).
+        * Image Classification Endpoint (/predict-image-category-class-probability/): A POST endpoint to predict the image category and estimate class probabilities for an uploaded JPEG image.
+        * Grad-CAM Visualization Endpoint (/visualize-image-gradcam/): A POST endpoint to generate and return Grad-CAM heatmaps for the uploaded image.
+    * **Image Preprocessing**
+        * Read and resized uploaded images to the required input size (227x227 pixels).
+        * Converted images to grayscale and normalized pixel values to the range (0, 1).
+        * Expanded image dimensions to match the model’s input shape.
+    * **Model Inference**
+        * Used the pre-trained CNN model to predict the image category and class probabilities.
+        * Mapped predicted class indices to human-readable labels (e.g., "No Tumor", "Pituitary", "Meningioma", "Glioma").
+    * **Grad-CAM Heatmap Generation**
+        * Defined a make_gradcam_heatmap function to compute Grad-CAM heatmaps using TensorFlow’s GradientTape.
+        * Generated heatmaps for the first, second, and third convolutional layers.
+        * Superimposed heatmaps onto the original image using a color map (turbo) and transparency.
+    * **Visualization and Encoding**
+        * Created a multi-panel plot to display Grad-CAM heatmaps for all three convolutional layers.
+        * Saved the plot to a buffer, encoded it as a base64 string, and returned it in the API response.
+    * **Error Handling**
+        * Implemented robust error handling for invalid file uploads (e.g., missing files, non-JPEG images).
+        * Used jsonify to return appropriate error messages and status codes (e.g., 400 for bad requests, 500 for server errors).
+    * **Running the Flask App**
+        * Used app.run to run the Flask app on localhost at port 5002.
+2. Key features of the API code included the following:
+    * Supported JPEG image uploads and validated file types.
+    * Provided both classification results and visual explanations (Grad-CAM) for model predictions.
+    * Ensured reproducibility and deterministic behavior through random seed setting.
+      
 
 ![ic_flaskapi_code.png](666bd6af-8d49-4666-a639-5b817bad1fe7.png)
 
