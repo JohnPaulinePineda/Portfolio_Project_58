@@ -47,7 +47,7 @@
 
 # 1. Table of Contents <a class="anchor" id="TOC"></a>
 
-This project explores the modular deployment of machine learning models using Representational State Transfer (RESTful) Application Programming Interfaces (APIs), specifically comparing **FastAPI** and **Flask** frameworks in <mark style="background-color: #CCECFF"><b>Python</b></mark>. Pre-trained models were loaded and integrated into the APIs, including a [Stacked Ensemble binary classification model for predicting lung cancer probabilities](https://johnpaulinepineda.github.io/Portfolio_Project_54/), a [Cox Proportional Hazards survival prediction model for estimating heart failure survival profiles](https://johnpaulinepineda.github.io/Portfolio_Project_55/), and a [Convolutional Neural Network-based image classification model for determining class categories for brain magnetic resonance images](https://johnpaulinepineda.github.io/Portfolio_Project_56/). The study objectives included understanding the similarities and differences between FastAPI and Flask in implementating and documenting RESTful API endpoints to process data preprocessing and model prediction logic, handling a variety of input types (such as structured data for class and survival probability predictions and file uploads for image classification), enabling diverse output formats (including string, float, list and base64-encoded visualization objects, depending on the model), and ensuring robust error handling and validation. All results were consolidated in a [<span style="color: #FF0000"><b>Summary</b></span>](#Summary) presented at the end of the document. 
+This project explores the modular deployment of machine learning models using Representational State Transfer (RESTful) Application Programming Interfaces (APIs), specifically comparing **FastAPI** and **Flask** frameworks in <mark style="background-color: #CCECFF"><b>Python</b></mark>. Pre-trained models were loaded and integrated into the APIs, including a [**Stacked ensemble binary classification model for predicting lung cancer probabilities**](https://johnpaulinepineda.github.io/Portfolio_Project_54/), a [**Cox Proportional Hazards survival prediction model for estimating heart failure survival profiles**](https://johnpaulinepineda.github.io/Portfolio_Project_55/), and a [**Convolutional Neural Network-based image classification model for determining class categories for brain magnetic resonance images**](https://johnpaulinepineda.github.io/Portfolio_Project_56/). The study objectives included understanding the similarities and differences between FastAPI and Flask in implementating and documenting RESTful API endpoints to process data preprocessing and model prediction logic, handling a variety of input types (such as structured data for class and survival probability predictions and file uploads for image classification), enabling diverse output formats (including string, float, list and base64-encoded visualization objects, depending on the model), and ensuring robust error handling and validation. All results were consolidated in a [<span style="color: #FF0000"><b>Summary</b></span>](#Summary) presented at the end of the document. 
 
 [RESTful APIs](https://www.oreilly.com/library/view/building-machine-learning/9781492045106/) are a standardized architectural style for designing networked applications, enabling communication between clients and servers over HTTP. They use HTTP methods like GET, POST, PUT, and DELETE to perform CRUD (Create, Read, Update, Delete) operations on resources, which are typically represented in JSON or XML format. RESTful APIs are stateless, meaning each request from a client to a server must contain all the information needed to process the request, ensuring scalability and reliability. For machine learning model deployment, RESTful APIs serve as a bridge between trained models and end-users or applications, allowing models to be accessed remotely via HTTP requests. This enables real-time predictions, batch processing, and integration with web or mobile applications. RESTful APIs are particularly significant for machine learning because they provide a standardized, platform-agnostic way to serve predictions, making models accessible to a wide range of clients. They also facilitate modularity, as models can be updated or replaced without affecting the client-side application. Additionally, RESTful APIs support scalability, as they can be deployed on cloud platforms and scaled horizontally to handle increased traffic. Error handling and validation mechanisms in RESTful APIs ensure robustness, which is critical for machine learning applications where malformed inputs can lead to incorrect predictions. By encapsulating machine learning logic behind APIs, developers can abstract away the complexity of model inference, making it easier for non-technical users to interact with the models. RESTful APIs also enable versioning, allowing multiple versions of a model to coexist and be accessed independently. This is particularly useful for A/B testing or gradual rollouts of updated models. Furthermore, RESTful APIs can be secured using authentication and authorization mechanisms, ensuring that only authorized users or applications can access the model. Overall, RESTful APIs are a cornerstone of modern machine learning deployment, providing a flexible, scalable, and secure way to serve predictions in production environments.
 
@@ -60,33 +60,215 @@ This project explores the modular deployment of machine learning models using Re
 
 ### 1.1.1 Categorical Classification <a class="anchor" id="1.1.1"></a>
 
+This project implements the **Logistic Regression Model** as an independent learner and as a meta-learner of a stacking ensemble model with **Decision Trees**, **Random Forest**, and **Support Vector Machine** classifier algorithms using various helpful packages in <mark style="background-color: #CCECFF"><b>Python</b></mark> to estimate probability of a dichotomous categorical response variable by modelling the relationship between one or more predictor variables and a binary outcome. The resulting predictions derived from the candidate models were evaluated using the **F1 Score** that ensures both false positives and false negatives are considered, providing a more balanced view of model classification performance. Resampling approaches including **Synthetic Minority Oversampling Technique** and **Condensed Nearest Neighbors** for imbalanced classification problems were applied by augmenting the dataset used for model training based on its inherent characteristics to achieve a more reasonably balanced distribution between the majority and minority classes. Additionally, **Class Weights** were also implemented by amplifying the loss contributed by the minority class and diminishing the loss from the majority class, forcing the model to focus more on correctly predicting the minority class. Penalties including **Least Absolute Shrinkage and Selection Operator** and **Ridge Regularization** were evaluated to impose constraints on the model coefficient updates. 
+
+* The complete data preprocessing and model development process was consolidated in this [**Jupyter Notebook**](https://johnpaulinepineda.github.io/Portfolio_Project_54/).
+* All associated datasets and code files were stored in this [**GitHub Project Repository**](https://github.com/JohnPaulinePineda/Portfolio_Project_54). 
+* The final model was deployed as a prototype application with a web interface via [**Streamlit**](https://lung-cancer-diagnosis-probability-estimation.streamlit.app/).
+
+
 #### 1.1.1.1 Data Background <a class="anchor" id="1.1.1.1"></a>
+
+1. The original dataset comprised rows representing observations and columns representing variables.
+2. The target variable is of dichotomous categorical data type:
+    * <span style="color: #FF0000">LUNG_CANCER</span> (Categorical: YES, Lung Cancer Cases | NO, Non-Lung Cancer Cases)
+3. The complete set of 15 predictor variables contain both numeric and categorical data types:   
+    * <span style="color: #FF0000">AGE</span> (Numeric: Years)
+    * <span style="color: #FF0000">GENDER</span> (Categorical: M, Male | F, Female)
+    * <span style="color: #FF0000">SMOKING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">YELLOW_FINGERS</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ANXIETY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">PEER_PRESSURE</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">CHRONIC_DISEASE</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">FATIGUE</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ALLERGY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">WHEEZING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ALCOHOL_CONSUMING </span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">COUGHING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">SHORTNESS_OF_BREATH</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">SWALLOWING_DIFFICULTY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">CHEST_PAIN</span> (Categorical: 1, Absent | 2, Present)
+4. Exploratory data analysis identified a subset of 10 predictor variables that was significantly associated with the target variable and subsequently used as the final model predictors:   
+    * <span style="color: #FF0000">YELLOW_FINGERS</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ANXIETY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">PEER_PRESSURE</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">FATIGUE</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ALLERGY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">WHEEZING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">ALCOHOL_CONSUMING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">COUGHING</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">SWALLOWING_DIFFICULTY</span> (Categorical: 1, Absent | 2, Present)
+    * <span style="color: #FF0000">CHEST_PAIN</span> (Categorical: 1, Absent | 2, Present)
+
 
 ![cc_data_background.png](c5ce3cb2-c166-43f1-8fb3-f50ef8f190f2.png)
 
 #### 1.1.1.2 Model Background <a class="anchor" id="1.1.1.2"></a>
 
+1. The model development process involved combining different **Dataset Versions** (with preprocessing actions applied to address class imbalance) and **Model Structures** (with ensembling strategy applied to improve generalization). Hyperparameter tuning was conducted using the 5-fold cross-validation method with optimal model performance determined using the **F1 score**.
+    * Individual classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) developed from the original data.
+    * Stacked classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) as a meta-learner with a [decision tree model](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html), [random forest model](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#), and [support vector machine model](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) as base learners developed from the original data.
+    * Individual classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) developed from the SMOTE-upsampled data.
+    * Stacked classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) as a meta-learner with a [decision tree model](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html), [random forest model](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#), and [support vector machine model](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) as base learners developed from the SMOTE-upsampled data.
+    * Individual classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) developed from the CNN-downsampled data.
+    * Stacked classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) as a meta-learner with a [decision tree model](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html), [random forest model](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#), and [support vector machine model](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) as base learners developed from the CNN-downsampled data.
+2. The stacked classifier using [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) as a meta-learner with a [decision tree model](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html), [random forest model](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#), and [support vector machine model](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) as base learners developed from the SMOTE-upsampled data was selected as the final model by demonstrating the best validation **F1 score** with minimal overfitting. 
+3. The final model configuration are described as follows:
+    * **Base learner**: [decision tree model](https://scikit-learn.org/stable/modules/generated/sklearn.tree.DecisionTreeClassifier.html) with optimal hyperparameters:
+        * <span style="color: #FF0000">max_depth</span> = 3
+        * <span style="color: #FF0000">class_weight</span> = none
+        * <span style="color: #FF0000">criterion</span> = entropy
+        * <span style="color: #FF0000">min_samples_leaf</span> = 3
+        * <span style="color: #FF0000">random_state</span> = 88888888
+    * **Base learner**: [random forest model](https://scikit-learn.org/stable/modules/generated/sklearn.ensemble.RandomForestClassifier.html#) with optimal hyperparameters:
+        * <span style="color: #FF0000">max_depth</span> = 5
+        * <span style="color: #FF0000">class_weight</span> = none
+        * <span style="color: #FF0000">criterion</span> = entropy
+        * <span style="color: #FF0000">max_features</span> = sqrt
+        * <span style="color: #FF0000">min_samples_leaf</span> = 3
+        * <span style="color: #FF0000">random_state</span> = 88888888
+    * **Base learner**: [support vector machine model](https://scikit-learn.org/stable/modules/generated/sklearn.svm.SVC.html) with optimal hyperparameters:
+        * <span style="color: #FF0000">C</span> = 1.00
+        * <span style="color: #FF0000">class_weight</span> = none
+        * <span style="color: #FF0000">kernel</span> = linear
+        * <span style="color: #FF0000">probability</span> = true
+        * <span style="color: #FF0000">random_state</span> = 88888888  
+    * **Meta-learner**: [logistic regression model](https://scikit-learn.org/stable/modules/generated/sklearn.linear_model.LogisticRegression.html) with optimal hyperparameters:
+        * <span style="color: #FF0000">penalty</span> = none
+        * <span style="color: #FF0000">class_weight</span> = none
+        * <span style="color: #FF0000">solver</span> = saga
+        * <span style="color: #FF0000">max_iter</span> = 500
+        * <span style="color: #FF0000">random_state</span> = 88888888
+          
+
 ![cc_model_background.png](5d81838d-3fa5-41d0-9511-2456a0137a05.png)
 
 #### 1.1.1.3 Deployment Background <a class="anchor" id="1.1.1.3"></a>
+
+1. The prediction model was deployed using a web application hosted at [<mark style="background-color: #CCECFF"><b>Streamlit</b></mark>](https://lung-cancer-diagnosis-probability-estimation.streamlit.app).
+2. The user interface input consists of the following:
+    * radio buttons to enable binary category selection (Present | Absent) to identify the status of the test case for each of the ten clinical symptoms and behavioral indicators
+        * <span style="color: #FF0000">YELLOW_FINGERS</span>
+        * <span style="color: #FF0000">ANXIETY</span>
+        * <span style="color: #FF0000">PEER_PRESSURE</span>
+        * <span style="color: #FF0000">FATIGUE</span>
+        * <span style="color: #FF0000">ALLERGY</span>
+        * <span style="color: #FF0000">WHEEZING</span>
+        * <span style="color: #FF0000">ALCOHOL_CONSUMING </span>
+        * <span style="color: #FF0000">COUGHING</span>
+        * <span style="color: #FF0000">SWALLOWING_DIFFICULTY</span>
+        * <span style="color: #FF0000">CHEST_PAIN</span>
+    * action button to:
+        * process study population data as baseline
+        * process user input as test case
+        * render all entries into visualization charts
+        * execute all computations, estimations and predictions
+        * render test case prediction into logistic probability plot
+3. The user interface ouput consists of the following:
+    * count plots to:
+        * provide a visualization of the proportion of lung cancer categories (Yes | No) by status (Present | Absent) as baseline
+        * indicate the entries made from the user input to visually assess the test case characteristics against the study population 
+    * logistic curve plot to:
+        * provide a visualization of the baseline logistic regression probability curve using the study population with lung cancer categories (Yes | No)
+        * indicate the estimated risk index and lung cancer probability of the test case into the baseline logistic regression probability curvee
+    * summary table to:
+        * present the computed risk index, estimated lung cancer probability and predicted risk category for the test case
+          
 
 ![cc_deployment_background.png](d0d3486e-750b-46a1-aaf8-c6680d97af35.png)
 
 ### 1.1.2 Survival Prediction <a class="anchor" id="1.1.2"></a>
 
+This project implements the **Cox Proportional Hazards Regression**, **Cox Net Survival**, **Survival Tree**, **Random Survival Forest**, and **Gradient Boosted Survival** models as independent base learners using various helpful packages in <mark style="background-color: #CCECFF"><b>Python</b></mark> to estimate the survival probabilities of right-censored survival time and status responses. The resulting predictions derived from the candidate models were evaluated in terms of their discrimination power using the **Harrel's Concordance Index** metric. Penalties including **Ridge Regularization** and **Elastic Net Regularization** were evaluated to impose constraints on the model coefficient updates, as applicable. Additionally, survival probability functions were estimated for model risk-groups and sampled individual cases. 
+
+* The complete model development process was consolidated in this [**Jupyter Notebook**](https://johnpaulinepineda.github.io/Portfolio_Project_55/).
+* All associated datasets and code files were stored in this [**GitHub Project Repository**](https://github.com/JohnPaulinePineda/Portfolio_Project_55). 
+* The final model was deployed as a prototype application with a web interface via [**Streamlit**](https://heart-failure-survival-probability-estimation.streamlit.app/).
+
+
 #### 1.1.2.1 Data Background <a class="anchor" id="1.1.2.1"></a>
+
+1. The original dataset comprised rows representing observations and columns representing variables.
+2. The target variables contain both numeric and dichotomous categorical data types:
+    * <span style="color: #FF0000">DEATH_EVENT</span> (Categorical: 0, Censored | 1, Death)
+    * <span style="color: #FF0000">TIME</span> (Numeric: Days)
+3. The complete set of 11 predictor variables contain both numeric and categorical data types:   
+    * <span style="color: #FF0000">AGE</span> (Numeric: Years)
+    * <span style="color: #FF0000">ANAEMIA</span> (Categorical: 0, Absent | 1 Present)
+    * <span style="color: #FF0000">CREATININE_PHOSPHOKINASE</span> (Numeric: Percent)
+    * <span style="color: #FF0000">DIABETES</span> (Categorical: 0, Absent | 1 Present)
+    * <span style="color: #FF0000">EJECTION_FRACTION</span> (Numeric: Percent)
+    * <span style="color: #FF0000">HIGH_BLOOD_PRESSURE</span> (Categorical: 0, Absent | 1 Present)
+    * <span style="color: #FF0000">PLATELETS</span> (Numeric: kiloplatelets/mL)
+    * <span style="color: #FF0000">SERUM_CREATININE</span> (Numeric: mg/dL)
+    * <span style="color: #FF0000">SERUM_SODIUM</span> (Numeric: mEq/L)
+    * <span style="color: #FF0000">SEX</span> (Categorical: 0, Female | 1, Male)
+    * <span style="color: #FF0000">SMOKING</span> (Categorical: 0, Absent | 1 Present)
+4. Exploratory data analysis identified a subset of 6 predictor variables that was significantly associated with the target variables and subsequently used as the final model predictors:   
+    * <span style="color: #FF0000">AGE</span> (Numeric: Years)
+    * <span style="color: #FF0000">ANAEMIA</span> (Categorical: 0, Absent | 1 Present)
+    * <span style="color: #FF0000">EJECTION_FRACTION</span> (Numeric: Percent)
+    * <span style="color: #FF0000">HIGH_BLOOD_PRESSURE</span> (Categorical: 0, Absent | 1 Present)
+    * <span style="color: #FF0000">SERUM_CREATININE</span> (Numeric: mg/dL)
+    * <span style="color: #FF0000">SERUM_SODIUM</span> (Numeric: mEq/L)
+
 
 ![sp_data_background.png](e84513d4-bd1f-4a06-aaf3-cc0ebeae8a8d.png)
 
 #### 1.1.2.2 Model Background <a class="anchor" id="1.1.2.2"></a>
 
+1. The model development process involved evaluating different **Model Structures**. Hyperparameter tuning was conducted using the 5-fold cross-validation method with optimal model performance determined using the **Harrel's concordance index**.
+    * [Cox proportional hazards regression model](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.linear_model.CoxPHSurvivalAnalysis.html) developed from the original data.
+    * [Cox net survival model ](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.linear_model.CoxnetSurvivalAnalysis.html) developed from the original data.
+    * [Survival tree model](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.tree.SurvivalTree.html) developed from the original data.
+    * [Random survival forest model,](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.ensemble.RandomSurvivalForest.html) developed from the original data.
+    * [Gradient boosted survival model ](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.ensemble.GradientBoostingSurvivalAnalysis.html) developed from the original data.
+2. The [cox proportional hazards regression model](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.linear_model.CoxPHSurvivalAnalysis.html) developed from the original data was selected as the final model by demonstrating the most stable **Harrel's concordance index** across the different internal and external validation sets. 
+3. The final model configuration for the [cox proportional hazards regression model](https://scikit-survival.readthedocs.io/en/stable/api/generated/sksurv.linear_model.CoxPHSurvivalAnalysis.html) is described as follows:
+    * <span style="color: #FF0000">alpha</span> = 10
+
+
 ![sp_model_background.png](bbf692c9-307f-4630-bfd5-8996a2590deb.png)
 
 #### 1.1.2.3 Deployment Background <a class="anchor" id="1.1.2.3"></a>
 
+1. The prediction model was deployed using a web application hosted at [<mark style="background-color: #CCECFF"><b>Streamlit</b></mark>](https://heart-failure-survival-probability-estimation.streamlit.app/).
+2. The user interface input consists of the following:
+    * range sliders to enable numerical input to measure the characteristics of the test case for certain cardiovascular, hematologic and metabolic markers:
+        * <span style="color: #FF0000">AGE</span>
+        * <span style="color: #FF0000">EJECTION_FRACTION</span>
+        * <span style="color: #FF0000">SERUM_CREATININE</span>
+        * <span style="color: #FF0000">SERUM_SODIUM</span>
+    * radio buttons to enable binary category selection (Present | Absent) to identify the status of the test case for certain hematologic and cardiovascular markers:
+        * <span style="color: #FF0000">ANAEMIA</span>
+        * <span style="color: #FF0000">HIGH_BLOOD_PRESSURE</span>
+    * action button to:
+        * process study population data as baseline
+        * process user input as test case
+        * render all entries into visualization charts
+        * execute all computations, estimations and predictions
+        * render test case prediction into the survival probability plot
+4. The user interface ouput consists of the following:
+    * Kaplan-Meier plots to:
+        * provide a baseline visualization of the survival profiles of the various feature categories (Yes | No or High | Low) estimated from the study population given the survival time and event status
+        * Indicate the entries made from the user input to visually assess the survival probabilities of the test case characteristics against the study population across all time points
+    * survival probability plot to:
+        * provide a visualization of the baseline survival probability profile using each observation of the study population given the survival time and event status
+        * indicate the heart failure survival probabilities of the test case at different time points
+    * summary table to:
+        * present the estimated heart failure survival probabilities and predicted risk category for the test case
+
+
 ![sp_deployment_background.png](e4759860-217e-4c31-8a4a-797844305b59.png)
 
 ### 1.1.3 Image Classification <a class="anchor" id="1.1.3"></a>
+
+This project focuses on leveraging the **Convolutional Neural Network Model** using various helpful packages in <mark style="background-color: #CCECFF"><b>Python</b></mark> for multiclass image classification by directly learning hierarchical features from raw pixel data. The CNN models were designed to extract low- and high-level features for differentiating between image categories. Various hyperparameters, including the number of layers, filter size, and number of dense layer weights, were systematically evaluated to optimize the model architecture. **Image Augmentation** techniques were employed to increase the diversity of training images and improve the model's ability to generalize. To enhance model performance and robustness, various regularization techniques were explored, including **Dropout**, **Batch Normalization**, and their **Combinations**. These methods helped mitigate overfitting and ensured stable learning. Callback functions such as **Early Stopping**, **Learning Rate Reduction on Performance Plateaus**, and **Model Checkpointing** were implemented to fine-tune the training process, optimize convergence, and prevent overtraining. Model evaluation was conducted using **Precision**, **Recall**, and **F1 Score** metrics to ensure both false positives and false negatives are considered, providing a more balanced view of model classification performance. Post-training, interpretability was emphasized through an advanced visualization technique using **Gradient Class Activation Mapping (Grad-CAM)**, providing insights into the spatial and hierarchical features that influenced the model's predictions, offering a deeper understanding of the decision-making process. 
+
+* The complete model development process was consolidated in this [**Jupyter Notebook**](https://johnpaulinepineda.github.io/Portfolio_Project_56/).
+* All associated datasets and code files were stored in this [**GitHub Project Repository**](https://github.com/JohnPaulinePineda/Portfolio_Project_56). 
+* The final model was deployed as a prototype application with a web interface via [**Streamlit**](https://brain-mri-image-classification.streamlit.app/).
+
 
 #### 1.1.3.1 Data Background <a class="anchor" id="1.1.3.1"></a>
 
