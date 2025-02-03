@@ -1,2 +1,7 @@
-# Portfolio_Project_58
-Data science project which explores different RESTful approaches to model deployment using Python.
+# [Model Deployment : Exploring Modular Application Programming Interface Frameworks For Serving Model Predictions](https://johnpaulinepineda.github.io/Portfolio_Project_58/)
+
+[![](https://img.shields.io/badge/Python-black?logo=Python)](#) [![](https://img.shields.io/badge/Jupyter-black?logo=Jupyter)](#) [![](https://img.shields.io/badge/FastAPI-black?logo=FastAPI)](#) [![](https://img.shields.io/badge/Flask-black?logo=Flask)](#)
+
+This [project](https://johnpaulinepineda.github.io/Portfolio_Project_58/) examines the modular deployment of machine and deep learning models through Representational State Transfer (RESTful) Application Programming Interfaces (APIs), focusing on a comparative analysis of FastAPI and Flask, two Python-based frameworks. Various pre-trained models were integrated into these APIs, including a Stacked ensemble binary classifier for lung cancer risk assessment, a Cox Proportional Hazards model for predicting heart failure survival, and a Convolutional Neural Network for brain MRI image classification. The developed FastAPI and Flask applications were evaluated in terms of implementing and documenting RESTful endpoints, managing data preprocessing and inference logic, handling diverse input formats (structured data for classification and survival predictions, as well as file uploads for image analysis), supporting multiple output types (such as strings, floats, lists, and base64-encoded visualizations), and ensuring robust error handling and validation mechanisms. 
+
+<img src="images/Project58_Summary.png?raw=true"/>
