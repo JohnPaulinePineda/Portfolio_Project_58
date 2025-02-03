@@ -2,7 +2,7 @@
 # Model Deployment : Exploring Modular Application Programming Interface Frameworks For Serving Model Predictions
 
 ***
-### [**John Pauline Pineda**](https://github.com/JohnPaulinePineda) <br> <br> *February 8, 2025*
+### [**John Pauline Pineda**](https://github.com/JohnPaulinePineda) <br> <br> *February 4, 2025*
 ***
 
 * [**1. Table of Contents**](#TOC)
@@ -663,7 +663,7 @@ else:
 #### 1.2.2.2 API Testing <a class="anchor" id="1.2.2.2"></a>
 
 1. The API code developed using the FastAPI framework deploying a survival prediction model was successfully tested with results presented as follows:
-    * **Server Initialization**: FastAPI application was started successfully, with Uvicorn running on http://127.0.0.1:8001, indicating that the server is active and ready to process requests.
+    * **Server Initialization**: FastAPI application was started successfully, with Uvicorn running on http://127.0.0.1:8001, indicating that the server and its documentation are active and ready to process requests.
     * **Hot Reloading Activated**: Uvicorn's reloader process (WatchFiles) was initialized, allowing real-time code changes without restarting the server.
     * **Server Process Started**: The primary server process was assigned a process ID (18676), confirming successful application launch.
     * **Application Ready State**: The server was shown to wait for incoming requests, ensuring all necessary components, including model loading, are successfully initialized.
@@ -1321,6 +1321,18 @@ else:
 
 #### 1.2.3.2 API Testing <a class="anchor" id="1.2.3.2"></a>
 
+1. The API code developed using the FastAPI framework deploying a CNN image classification model was successfully tested with results presented as follows:
+    * **Server Initialization**: FastAPI application was started successfully, confirming that the server and its documentation are active and ready to process requests.
+    * **Hot Reloading Activated**: Uvicorn's reloader process (WatchFiles) was initialized, allowing real-time code changes without restarting the server.
+    * **Server Process Started**: The primary server process was assigned a process ID (16508), indicating successful application launch.
+    * **Application Ready State**: The server was shown to wait for incoming requests, ensuring all necessary components, including model loading, are successfully initialized.
+    * **Root Endpoint Accessed (GET /)**: The API received a GET request at the root endpoint and responded with 200 OK, confirming that the service is running and accessible.
+    * **File Upload Test (POST /test-file-upload/)**: A POST request for file uploads was successfully processed, returning metadata and 200 OK, verifying the API's ability to handle file uploads.
+    * **Image Classification Prediction (POST /predict-image-category-class-probability/)**: The API processed an image classification request, returning predicted class probabilities with a 200 OK response.
+    * **Grad-CAM Visualization (POST /visualize-image-gradcam/)**: A POST request for Grad-CAM visualization was handled successfully, generating a heatmap overlay and returning 200 OK.
+    * **Invalid Input Handling (POST /test-file-upload/)**: A malformed or unsupported request resulted in a 400 Bad Request response, demonstrating the API's robust validation and error-handling mechanisms.
+
+
 ![ic_fastapi_activation.png](03e075dd-63b0-4b41-8479-2b03412459dd.png)
 
 ![ic_fastapi_documentation.png](a062362a-84dd-4446-aa30-92dc5ba270e9.png)
@@ -1814,7 +1826,7 @@ else:
 #### 1.3.2.2 API Testing <a class="anchor" id="1.3.2.2"></a>
 
 1. The API code developed using the Flask framework deploying a survival prediction model was successfully tested with results presented as follows:
-    * **Server Initialization**: Flask application started successfully, serving the 'survival_prediction_flaskapi' application.
+    * **Server Initialization**: Flask application started successfully, serving the 'survival_prediction_flaskapi' application and its documentation.
     * **Debug Mode Disabled**: The application ran with Debug mode: off, indicating a stable deployment configuration.
     * **Development Server Warning**: A warning advised against using Flask’s built-in development server in production and recommended a WSGI server instead.
     * **Server Running on Local and Network Addresses**: The API was accessible at http://127.0.0.1:5001 (localhost) and http://192.168.6.49:5001 (local network), confirming successful binding to all available interfaces (0.0.0.0).
@@ -2474,6 +2486,18 @@ else:
 
 #### 1.3.3.2 API Testing <a class="anchor" id="1.3.3.2"></a>
 
+1. The API code developed using the Flask framework deploying a CNN image classification model was successfully tested with results presented as follows:
+    * **Server Initialization**: Flask application started successfully, serving the 'image_classification_flaskapi' application and its documentation.
+    * **Debug Mode Disabled**: The application ran with Debug mode: off, indicating a production-like environment but still using Flask’s built-in server.
+    * **Development Server Warning**: A warning advised against using Flask’s built-in development server in production and recommends a WSGI server instead.
+    * **Server Running on Local Address**: The API was accessible at http://127.0.0.1:5002 (localhost), confirming successful binding to the local interface.
+    * **Root Endpoint Accessed (GET /)**: A GET request at / returned 200 OK, verifying that the API service was running and accessible.
+    * **File Upload Endpoint Accessed (POST /test-file-upload/)**: A POST request at /test-file-upload/ returns 200 OK, confirming correct handling of file upload metadata.
+    * **Image Classification Endpoint Accessed (POST /predict-image-category-class-probability/)**: A POST request for image category class and probability prediction returned 200 OK, demonstrating accurate classification and probability estimation for the uploaded image.
+    * **Grad-CAM Visualization Endpoint Accessed (POST /visualize-image-gradcam/)**: A POST request for image gradcam visualization returned 200 OK, showing successful generation of Grad-CAM visualizations for the uploaded image.
+    * **Invalid File Upload Handling (POST /test-file-upload/)**: An invalid file upload resulted in 400 Bad Request, indicating proper error handling when incorrect file formats are uploaded.
+
+
 ![ic_flaskapi_activation.png](6353a838-016b-4d32-bf0e-0ede8dcb4177.png)
 
 ![ic_flaskapi_documentation.png](b03dbdbb-2a57-4c85-8943-ec36a66a0f6b.png)
@@ -2722,7 +2746,25 @@ with open(malformed_image_path, "rb") as file:
 
 ## 1.4. Consolidated Findings <a class="anchor" id="1.4"></a>
 
+1. Pre-trained models covering categorical classification, survival prediction and image classification were separately loaded and integrated into both the FastAPI and Flask frameworks.
+2. RESTful API endpoints using these frameworks were developed for each project to process prediction logic, handle input requests, and return diverse outputs.
+3. The APIs were designed to handle a variety of input types, such as file uploads for image classification and structured data for survival and risk prediction.
+4. Output types included strings (e.g., risk categories), floats (e.g., probabilities), and visualizations (e.g., Grad-CAM heatmaps and Kaplan-Meier plots).
+5. Robust error handling was implemented across all projects to ensure graceful degradation and meaningful error messages. This included validating input types, checking for missing fields, and handling exceptions during model inference.
+6. Both FastAPI and Flask frameworks were observed to:
+    * be efficient for building APIs to serve machine learning models via HTTP endpoints.
+    * integrate well with Python-based machine learning and deep learning libraries like TensorFlow, Scikit-learn and Scikit-survival.
+    * load, preprocess, and run inference on machine and deep learning models.
+    * allow serving models as RESTful APIs, handling requests, and returning model predictions.
+    * handle GET and POST requests, JSON payloads, and return responses.
+7. Comparing both frameworks, observations were as follows:
+    * FastAPI can be leveraged for its asynchronous capabilities, built-in data validation with Pydantic, and automatic OpenAPI documentation that are ideal for high concurrency, real-time ML inference, or scalable APIs.
+    * Flask is simpler and more flexible but synchronous by default and required integration with Flasgger for Swagger documentation, making it better for small-scale applications with a lightweight setup or when performance isn’t a top priority.
+
+
 # 2. Summary <a class="anchor" id="Summary"></a>
+
+![Project58_Summary.png](39a4cf15-2e0b-4ac6-ba48-af082cc6ead6.png)
 
 # 3. References <a class="anchor" id="References"></a>
 
