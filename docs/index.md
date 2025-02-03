@@ -404,10 +404,58 @@ This project focuses on leveraging the **Convolutional Neural Network Model** us
 
 #### 1.2.1.1 API Building <a class="anchor" id="1.2.1.1"></a>
 
+1. An API code using the FastAPI framework was developed for deploying a categorical classification model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as FastAPI, HTTPException, and BaseModel for API development.
+        * Included libraries for data manipulation (numpy, pandas) and model loading (joblib).
+    * **Defining File Paths**
+        * Specified the MODELS_PATH to locate the pre-trained scikit-learn model.
+    * **Loading the Pre-Trained Classification Model**
+        * Loaded the pre-trained scikit-learn model (stacked_balanced_class_best_model_upsampled.pkl) using joblib.load.
+        * Handled potential errors during model loading with a try-except block.
+    * **Defining Input Schemas**
+        * Created a Pydantic BaseModel class to define the input schema for TestSample: For individual test cases, expecting a list of floats as input features.
+        * Created a Pydantic BaseModel class to define the input schema for TestBatch: For batch processing, expecting a list of lists of floats as input features.
+    * **Initializing the FastAPI App**
+        * Created a FastAPI instance (app) to define and serve API endpoints.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * Individual Prediction Endpoint (/predict-individual-logit-probability-class): A POST endpoint to compute the logit, probability, and risk category for an individual test case.
+        * Batch Prediction Endpoint (/predict-list-logit-probability-class): A POST endpoint to compute and sort logits and probabilities for a batch of test cases.
+    * **Individual Prediction Logic**
+        * Converted the input data into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s decision_function to compute the logit value.
+        * Used the predict_proba method to estimate the probability of the positive class.
+        * Classified the test case as "Low-Risk" or "High-Risk" based on a probability threshold of 0.50.
+    * **Batch Prediction Logic**
+        * Converted the batch input data into a pandas DataFrame with appropriate feature names.
+        * Computed logits and probabilities for all cases in the batch using decision_function and predict_proba.
+        * Sorted the logits and probabilities in ascending order for easier interpretation.
+    * **Error Handling**
+        * Implemented robust error handling for invalid inputs or prediction errors using HTTPException.
+        * Returned meaningful error messages and appropriate HTTP status codes (e.g., 400 for bad requests).
+    * **Running the FastAPI App**
+        * Used uvicorn to run the FastAPI app on localhost at port 8000.
+2. Key features of the API code included the following:
+    * Supported both individual and batch predictions, making the API versatile for different use cases.
+    * Provided logits, probabilities, and risk categories as outputs for interpretable results.
+    * Ensured input validation and error handling for robust API performance.
+
 
 ![cc_fastapi_code.png](0c035228-e098-4344-864f-a2b5502a927e.png)
 
 #### 1.2.1.2 API Testing <a class="anchor" id="1.2.1.2"></a>
+
+1. The API code developed using the FastAPI framework deploying a categorical classification model was successfully tested with results presented as follows: 
+    * **Server Initialization**: FastAPI application was started successfully, with Uvicorn running on http://127.0.0.1:8000, indicating that the server and its documentation are active and ready to process requests.
+    * **Hot Reloading Activated**: Uvicorn's reloader process (WatchFiles) was initialized, allowing real-time code changes without restarting the server.
+    * **Server Process Started**: The primary server process was assigned a process ID (17924), confirming successful application launch.
+    * **Application Ready State**: The server was shown to wait for incoming requests, ensuring all necessary components, including model loading, are successfully initialized.
+    * **Root Endpoint Accessed (GET /)**:The API received a GET request at the root endpoint and responded with 200 OK, confirming that the service is running and accessible.
+    * **Individual Prediction Request (POST /predict-individual-logit-probability-class)**: A POST request was processed successfully, returning 200 OK, indicating that the API correctly handled and responded to an individual classification request.
+    * **Batch Prediction Request (POST /predict-list-logit-probability-class)**: The API successfully processed a POST request for batch classification, returning 200 OK, confirming that multiple test cases were handled correctly.
+    * **Invalid Input Handling (POST /predict-individual-logit-probability-class)**: A malformed or incorrectly structured request resulted in a 422 Unprocessable Entity response, demonstrating the API's robust error-handling mechanism for invalid input formats.
+
 
 ![cc_fastapi_activation.png](1ef82129-c142-4aad-a439-7109bea39923.png)
 
@@ -554,9 +602,78 @@ else:
 
 #### 1.2.2.1 API Building <a class="anchor" id="1.2.2.1"></a>
 
+1. An API code using the FastAPI framework was developed for deploying a survival prediction model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as FastAPI, HTTPException, and BaseModel for API development.
+        * Included libraries for survival analysis (sksurv, lifelines), data manipulation (numpy, pandas), and visualization (matplotlib).
+        * Used io and base64 for encoding and handling image outputs.
+    * **Defining File Paths**
+        * Specified the MODELS_PATH and PARAMETERS_PATH to locate the pre-trained survival model and related parameters.
+    * **Loading the Pre-Trained Survival Model**
+        * Loaded the pre-trained Cox Proportional Hazards (CoxPH) model (coxph_best_model.pkl) using joblib.load.
+        * Handled potential errors during model loading with a try-except block.
+    * **Loading Model Parameters**
+        * Loaded the median values for numeric features (numeric_feature_median_list.pkl) to support feature binning.
+        * Loaded the risk group threshold (coxph_best_model_risk_group_threshold.pkl) for categorizing patients into "High-Risk" and "Low-Risk" groups.
+    * **Defining Input Schemas**
+        * Created a Pydantic BaseModel class to define input schema for TestSample: For individual test cases, expecting a list of floats as input features.
+        * Created a Pydantic BaseModel class to define input schema for TrainList: For batch processing, expecting a list of lists of floats as input features.
+        * Created a Pydantic BaseModel class to define input schema for BinningRequest: For dichotomizing numeric features based on the median.
+        * Created a Pydantic BaseModel class to define input schema for KaplanMeierRequest: For generating Kaplan-Meier survival plots.
+    * **Initializing the FastAPI App**
+        * Created a FastAPI instance (app) to define and serve API endpoints.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * Individual Survival Prediction Endpoint (/compute-individual-coxph-survival-probability-class/): A POST endpoint to generate survival profiles, estimate survival probabilities, and predict risk categories for individual test cases.
+        * Batch Survival Profile Endpoint (/compute-list-coxph-survival-profile/): A POST endpoint to generate survival profiles for a batch of cases.
+        * Feature Binning Endpoint (/bin-numeric-model-feature/): A POST endpoint to dichotomize numeric features based on the median.
+        * Kaplan-Meier Plot Endpoint (/plot-kaplan-meier/): A POST endpoint to generate and return Kaplan-Meier survival plots.
+    * **Individual Survival Prediction Logic**
+        * Converted the input data into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s predict_survival_function to generate the survival function for the test case.
+        * Predicted the risk category ("High-Risk" or "Low-Risk") based on the model’s risk score and threshold.
+        * Interpolated survival probabilities at predefined time points (e.g., 50, 100, 150, 200, 250 days).
+    * **Batch Survival Profile Logic**
+        * Converted the batch input data into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s predict_survival_function to generate survival functions for all cases in the batch.
+        * Extracted and returned survival profiles for each case.
+    * **Feature Binning Logic**
+        * Converted the input data into a pandas DataFrame.
+        * Dichotomized the specified numeric feature into "Low" and "High" categories based on the median value.
+        * Returned the binned data as a list of dictionaries.
+    * **Kaplan-Meier Plot Logic**
+        * Converted the input data into a pandas DataFrame.
+        * Initialized a KaplanMeierFitter object to estimate survival probabilities.
+        * Plotted survival curves for different categories of the specified variable (e.g., "Low" vs. "High").
+        * Included an optional new case value for comparison in the plot.
+        * Saved the plot as a base64-encoded image and returned it in the API response.
+    * **Error Handling**
+        * Implemented robust error handling for invalid inputs or prediction errors using HTTPException.
+        * Returned meaningful error messages and appropriate HTTP status codes (e.g., 500 for server errors).
+    * **Running the FastAPI App**
+        * Used uvicorn to run the FastAPI app on localhost at port 8001.
+2. Key features of the API code included the following:
+    * Supported both individual and batch predictions, making the API versatile for different use cases.
+    * Provided survival probabilities, risk categories, and visualizations (Kaplan-Meier plots) for interpretable results.
+    * Enabled feature binning for categorical analysis of numeric features.
+
+
 ![sp_fastapi_code.png](1f99067b-b0a5-4dca-9827-cf2686fc9108.png)
 
 #### 1.2.2.2 API Testing <a class="anchor" id="1.2.2.2"></a>
+
+1. The API code developed using the FastAPI framework deploying a survival prediction model was successfully tested with results presented as follows:
+    * **Server Initialization**: FastAPI application was started successfully, with Uvicorn running on http://127.0.0.1:8001, indicating that the server is active and ready to process requests.
+    * **Hot Reloading Activated**: Uvicorn's reloader process (WatchFiles) was initialized, allowing real-time code changes without restarting the server.
+    * **Server Process Started**: The primary server process was assigned a process ID (18676), confirming successful application launch.
+    * **Application Ready State**: The server was shown to wait for incoming requests, ensuring all necessary components, including model loading, are successfully initialized.
+    * **Root Endpoint Accessed (GET /)**: The API received a GET request at the root endpoint and responded with 200 OK, confirming that the service is running and accessible.
+    * **Individual Survival Probability Request (POST /compute-individual-coxph-survival-probability-class/)**: A POST request was processed successfully, returning 200 OK, indicating that the API correctly computed survival probabilities and risk categorization for an individual test case.
+    * **Batch Survival Profile Request (POST /compute-list-coxph-survival-profile/)**: The API successfully processed a POST request for batch survival profile computation, returning 200 OK, confirming that multiple test cases were handled correctly.
+    * **Feature Binning Request (POST /bin-numeric-model-feature/)**: A POST request was successfully executed, returning 200 OK, confirming that the API correctly categorized numeric model features into dichotomous bins.
+    * **Kaplan-Meier Plot Request (POST /plot-kaplan-meier/)**: The API successfully processed a POST request, returning 200 OK, indicating that a Kaplan-Meier survival plot was generated and returned as a base64-encoded image.
+    * **Invalid Input Handling (POST /compute-individual-coxph-survival-probability-class/)**: A malformed or incorrectly structured request resulted in a 422 Unprocessable Entity response, demonstrating the API's robust error-handling mechanism for invalid input formats.
+
 
 ![sp_fastapi_activation.png](2cc97028-ce4a-4cf0-948f-840b22cdbd0e.png)
 
@@ -1453,9 +1570,60 @@ with open(malformed_image_path, "rb") as file:
 
 #### 1.3.1.1 API Building <a class="anchor" id="1.3.1.1"></a>
 
+1. An API code using the Flask framework was developed for deploying a categorical classification model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as Flask, request, and jsonify for API development.
+        * Included libraries for data manipulation (numpy, pandas) and model loading (joblib).
+        * Integrated Flasgger for Swagger API documentation.
+    * **Defining File Paths**
+        * Specified the MODELS_PATH to locate the pre-trained scikit-learn model.
+    * **Loading the Pre-Trained Classification Model**
+        * Loaded the pre-trained scikit-learn model (stacked_balanced_class_best_model_upsampled.pkl) using joblib.load.
+        * Handled potential errors during model loading with a try-except block.
+    * **Defining Input Schemas**
+        * Created a Pydantic BaseModel class to define the input schema for TestSample: For individual test cases, expecting a list of floats as input features.
+        * Created a Pydantic BaseModel class to define the input schema for TestBatch: For batch processing, expecting a list of lists of floats as input features.
+    * **Initializing the Flask App**
+        * Created a Flask instance (app) to define and serve API endpoints.
+        * Integrated Swagger for automatic API documentation.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * Individual Prediction Endpoint (/predict-individual-logit-probability-class): A POST endpoint to compute the logit, probability, and risk category for an individual test case.
+        * Batch Prediction Endpoint (/predict-list-logit-probability-class): A POST endpoint to compute and sort logits and probabilities for a batch of test cases.
+    * **Individual Prediction Logic**
+        * Extracted input data from the request body and converted it into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s decision_function to compute the logit value.
+        * Used the predict_proba method to estimate the probability of the positive class.
+        * Classified the test case as "Low-Risk" or "High-Risk" based on a probability threshold of 0.50.
+    * **Batch Prediction Logic**
+        * Extracted batch input data from the request body and converted it into a pandas DataFrame with appropriate feature names.
+        * Computed logits and probabilities for all cases in the batch using decision_function and predict_proba.
+        * Sorted the logits and probabilities in ascending order for easier interpretation.
+    * **Error Handling**
+        * Implemented robust error handling for invalid inputs or prediction errors using jsonify.
+        * Returned meaningful error messages and appropriate HTTP status codes (e.g., 400 for bad requests).
+    * **Running the Flask App**
+        * Used app.run to run the Flask app on localhost at port 5000.
+2. Key features of the API code included the following:
+    * Supported both individual and batch predictions, making the API versatile for different use cases.
+    * Provided logits, probabilities, and risk categories as outputs for interpretable results.
+    * Ensured input validation and error handling for robust API performance.
+
+
 ![cc_flaskapi_code.png](10723341-eac5-413e-bd18-2e5ca0e740a5.png)
 
 #### 1.3.1.2 API Testing <a class="anchor" id="1.3.1.2"></a>
+
+1. The API code developed using the Flask framework deploying a categorical classification model was successfully tested with results presented as follows:
+    * **Server Initialization**: Flask application started successfully, serving the 'categorical_classification_flaskapi' application and its documentation.
+    * **Debug Mode Disabled**: The application ran with Debug mode: off, indicating a production-like environment but still using Flask’s built-in server.
+    * **Development Server Warning**: A warning advised against using Flask’s built-in development server in production and recommended a WSGI server instead.
+    * **Server Running on Local and Network Addresses**: The API was accessible at http://127.0.0.1:5000 (localhost) and http://192.168.6.49:5000 (local network), confirming successful binding to all available interfaces (0.0.0.0).
+    * **Root Endpoint Accessed (GET /)**: A GET request at / returned 200 OK, verifying that the API service is running and accessible.
+    * **Individual Prediction Request (POST /predict-individual-logit-probability-class)**: A POST request was successfully processed with 200 OK, indicating correct handling and response for a single test case.
+    * **Batch Prediction Request (POST /predict-list-logit-probability-class)**: A POST request for batch classification was handled successfully, returning 200 OK, confirming multiple test cases were processed correctly.
+    * **Invalid Input Handling (POST /predict-individual-logit-probability-class)**: A malformed request resulted in 400 Bad Request, demonstrating the API’s ability to catch and handle incorrect input formats.
+
 
 ![cc_flaskapi_activation.png](2c7149d3-ef57-4f6c-b05a-6848369ced82.png)
 
@@ -1588,9 +1756,75 @@ else:
 
 #### 1.3.2.1 API Building <a class="anchor" id="1.3.2.1"></a>
 
+1. An API code using the Flask framework was developed for deploying a survival prediction model with the steps described as follows:
+    * **Loading Python Libraries**
+        * Imported necessary libraries such as Flask, request, and jsonify for API development.
+        * Included libraries for survival analysis (sksurv, lifelines), data manipulation (numpy, pandas), and visualization (matplotlib).
+        * Used io and base64 for encoding and handling image outputs.
+        * Integrated Flasgger for Swagger API documentation.
+    * **Defining File Paths**
+        * Specified the MODELS_PATH and PARAMETERS_PATH to locate the pre-trained survival model and related parameters.
+    * **Loading the Pre-Trained Survival Model**
+        * Loaded the pre-trained Cox Proportional Hazards (CoxPH) model (coxph_best_model.pkl) using joblib.load.
+        * Handled potential errors during model loading with a try-except block.
+    * **Loading Model Parameters**
+        * Loaded the median values for numeric features (numeric_feature_median_list.pkl) to support feature binning.
+        * Loaded the risk group threshold (coxph_best_model_risk_group_threshold.pkl) for categorizing patients into "High-Risk" and "Low-Risk" groups.
+    * **Initializing the Flask App**
+        * Created a Flask instance (app) to define and serve API endpoints.
+        * Integrated Swagger for automatic API documentation.
+    * **Defining API Endpoints**
+        * Root Endpoint (/): A simple GET endpoint to validate API service connectivity.
+        * Individual Survival Prediction Endpoint (/compute-individual-coxph-survival-probability-class/): A POST endpoint to generate survival profiles, estimate survival probabilities, and predict risk categories for individual test cases.
+        * Batch Survival Profile Endpoint (/compute-list-coxph-survival-profile/): A POST endpoint to generate survival profiles for a batch of cases.
+        * Feature Binning Endpoint (/bin-numeric-model-feature/): A POST endpoint to dichotomize numeric features based on the median.
+        * Kaplan-Meier Plot Endpoint (/plot-kaplan-meier/): A POST endpoint to generate and return Kaplan-Meier survival plots.
+    * **Individual Survival Prediction Logic**
+        * Extracted input data from the request body and converted it into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s predict_survival_function to generate the survival function for the test case.
+        * Predicted the risk category ("High-Risk" or "Low-Risk") based on the model’s risk score and threshold.
+        * Interpolated survival probabilities at predefined time points (e.g., 50, 100, 150, 200, 250 days).
+    * **Batch Survival Profile Logic**
+        * Extracted batch input data from the request body and converted it into a pandas DataFrame with appropriate feature names.
+        * Used the pre-trained model’s predict_survival_function to generate survival functions for all cases in the batch.
+        * Extracted and returned survival profiles for each case.
+    * **Feature Binning Logic**
+        * Extracted input data from the request body and converted it into a pandas DataFrame.
+        * Dichotomized the specified numeric feature into "Low" and "High" categories based on the median value.
+        * Returned the binned data as a list of dictionaries.
+    * **Kaplan-Meier Plot Logic**
+        * Extracted input data from the request body and converted it into a pandas DataFrame.
+        * Initialized a KaplanMeierFitter object to estimate survival probabilities.
+        * Plotted survival curves for different categories of the specified variable (e.g., "Low" vs. "High").
+        * Included an optional new case value for comparison in the plot.
+        * Saved the plot as a base64-encoded image and returned it in the API response.
+    * **Error Handling**
+        * Implemented robust error handling for invalid inputs or prediction errors using jsonify.
+        * Returned meaningful error messages and appropriate HTTP status codes (e.g., 400 for bad requests, 500 for server errors).
+    * **Running the Flask App**
+        * Used app.run to run the Flask app on localhost at port 5001.
+2. Key features of the API code included the following:
+    * Supported both individual and batch predictions, making the API versatile for different use cases.
+    * Provided survival probabilities, risk categories, and visualizations (Kaplan-Meier plots) for interpretable results.
+    * Enabled feature binning for categorical analysis of numeric features.
+
+
 ![sp_flaskapi_code.png](98b3e8a0-d312-4ee3-a32f-b432cc7986ed.png)
 
 #### 1.3.2.2 API Testing <a class="anchor" id="1.3.2.2"></a>
+
+1. The API code developed using the Flask framework deploying a survival prediction model was successfully tested with results presented as follows:
+    * **Server Initialization**: Flask application started successfully, serving the 'survival_prediction_flaskapi' application.
+    * **Debug Mode Disabled**: The application ran with Debug mode: off, indicating a stable deployment configuration.
+    * **Development Server Warning**: A warning advised against using Flask’s built-in development server in production and recommended a WSGI server instead.
+    * **Server Running on Local and Network Addresses**: The API was accessible at http://127.0.0.1:5001 (localhost) and http://192.168.6.49:5001 (local network), confirming successful binding to all available interfaces (0.0.0.0).
+    * **Root Endpoint Accessed (GET /)**: A GET request at / returned 200 OK, verifying that the API service was running and accessible.
+    * **Individual Survival Prediction Request (POST /compute-individual-coxph-survival-probability-class/)**: A POST request was successfully processed with 200 OK, indicating correct handling and response for an individual survival probability estimation.
+    * **Batch Survival Profile Request (POST /compute-list-coxph-survival-profile/)**: A POST request for batch survival profile estimation was handled successfully, returning 200 OK, confirming multiple test cases were processed correctly.
+    * **Numeric Feature Binning Request (POST /bin-numeric-model-feature/)**: A POST request was successfully processed with 200 OK, confirming correct handling of numeric feature dichotomization.
+    * **Kaplan-Meier Plot Request (POST /plot-kaplan-meier/)**: A POST request was successfully processed with 200 OK, returning a Kaplan-Meier survival curve plot encoded in Base64 format.
+    * **Invalid Input Handling (POST /compute-individual-coxph-survival-probability-class/)**: A malformed request resulted in 400 Bad Request, demonstrating the API’s ability to catch and handle incorrect input formats.
+
 
 ![sp_flaskapi_activation.png](72d36408-7169-48b5-af94-534e0f3527bf.png)
 
@@ -2203,7 +2437,7 @@ else:
     * **Creating Gradient Models for Grad-CAM**
         * Created three gradient models (grad_model_first_conv2d, grad_model_second_conv2d, grad_model_third_conv2d) to extract outputs from the first, second, and third convolutional layers.
         * Compiled these models with the same parameters as the main model.
-    * **Initializing the FastAPI App**
+    * **Initializing the Flask App**
         * Created a Flask instance (app) to define and serve API endpoints.
         * Integrated Swagger for automatic API documentation.
     * **Defining API Endpoints**
